@@ -1,11 +1,11 @@
 // https://docs.expo.dev/guides/using-eslint/
-const { defineConfig } = require('eslint/config');
-const expoConfig = require('eslint-config-expo/flat');
-const reactCompiler = require('eslint-plugin-react-compiler');
-const prettierConfig = require('eslint-config-prettier');
-const prettierPlugin = require('eslint-plugin-prettier');
+import expoConfig from 'eslint-config-expo/flat.js';
+import prettierConfig from 'eslint-config-prettier';
+import prettierPlugin from 'eslint-plugin-prettier';
+import reactCompiler from 'eslint-plugin-react-compiler';
+import { defineConfig } from 'eslint/config';
 
-module.exports = defineConfig([
+export default defineConfig([
 	{
 		extends: [expoConfig],
 		rules: {
