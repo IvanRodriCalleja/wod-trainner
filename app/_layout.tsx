@@ -1,12 +1,9 @@
-import { useEffect } from 'react';
-
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from '@/components/useColorScheme';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import 'react-native-reanimated';
+
+import { useLocales } from '@wod-trainer/internationalization/infra';
+import { I18nProvider } from '@wod-trainer/internationalization/ui/I18nProvider';
 
 export {
 	// Catch any errors thrown by the Layout component.
@@ -21,39 +18,16 @@ export const unstable_settings = {
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-	const [loaded, error] = useFonts({
-		SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-		...FontAwesome.font
-	});
-
-	// Expo Router uses Error Boundaries to catch errors in the navigation tree.
-	useEffect(() => {
-		if (error) throw error;
-	}, [error]);
-
-	useEffect(() => {
-		if (loaded) {
-			SplashScreen.hideAsync();
-		}
-	}, [loaded]);
-
-	if (!loaded) {
-		return null;
-	}
-
-	return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-	const colorScheme = useColorScheme();
+const RootLayout = () => {
+	const { lang, locales } = useLocales();
 
 	return (
-		<ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+		<I18nProvider currentLanguage={lang} locales={locales}>
 			<Stack>
 				<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-				<Stack.Screen name="modal" options={{ presentation: 'modal' }} />
 			</Stack>
-		</ThemeProvider>
+		</I18nProvider>
 	);
-}
+};
+
+export default RootLayout;

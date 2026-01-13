@@ -20,7 +20,7 @@
 		"server-only",
 		"^(react|react-native)$",
 		"<THIRD_PARTY_MODULES>",
-		"^@agentero/(.*)$",
+		"^@wod-trainer/(.*)$",
 		"^(packages|modules|routes)(.*)$",
 		"^[./]"
 	],
