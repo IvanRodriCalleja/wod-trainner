@@ -1,9 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { useLocale } from '@wod-trainer/internationalization/ui/I18nProvider';
+
 export default function TabOneScreen() {
+	const { title } = useLocale();
+
 	return (
 		<View style={styles.container}>
-			<Text style={styles.title}>Tab One</Text>
+			<Text style={styles.title}>{title}</Text>
 			<View style={styles.separator} />
 		</View>
 	);
