@@ -4,3 +4,10 @@
 @import 'heroui-native/styles';
 
 @source '../node_modules/heroui-native/lib';
+
+@theme static {
+	--color-amber-500: #22c55e;
+	--color-regal-blue: #243c5a;
+
+	--color-al-teal-10: #eaeeee;
+}

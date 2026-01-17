@@ -3,12 +3,15 @@ const { withUniwindConfig } = require('uniwind/metro');
 
 const config = getDefaultConfig(__dirname);
 
-// your metro modifications
+// react-strict-dom doesn't have a valid main field.
+config.resolver.unstable_enablePackageExports = true;
 
+// your metro modifications
 module.exports = withUniwindConfig(config, {
 	// relative path to your global.css file (from previous step)
-	cssEntryFile: './app/global.css',
+	cssEntryFile: './global.css',
 	// (optional) path where we gonna auto-generate typings
 	// defaults to project's root
-	dtsFile: './uniwind-types.d.ts'
+	dtsFile: './uniwind-types.d.ts',
+	debug: true
 });
