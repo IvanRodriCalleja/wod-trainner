@@ -32,7 +32,7 @@ const PlayIcon = withUniwind(Ionicons, {
 	}
 });
 export const PauseOverlay = ({ visible, color }: PauseOverlayProps) => {
-	/*const showProgress = useSharedValue(0);
+	const showProgress = useSharedValue(0);
 	const breathingScale = useSharedValue(1);
 
 	useEffect(() => {
@@ -65,41 +65,25 @@ export const PauseOverlay = ({ visible, color }: PauseOverlayProps) => {
 
 	const breathingStyle = useAnimatedStyle(() => ({
 		transform: [{ scale: breathingScale.value }]
-	}));*/
+	}));
 
 	return (
-		/*<Animated.View
+		<Animated.View
 			style={containerStyle}
 			className="absolute inset-0 z-20 flex items-center justify-center">
 			<Animated.View style={breathingStyle}>
-				<Div className="relative inset-0 aspect-square w-[60%] rounded-full bg-red-500 opacity-10">
-					<BlurView
+				<Div
+					className={`relative aspect-square w-[40%] overflow-hidden rounded-full border-2 border-emerald-600`}>
+					<Div className="absolute inset-0 bg-emerald-500/40" />
+					{/* in terms of positioning and zIndex-ing everything before the BlurView will be blurred */}
+					<Blur
+						className="flex h-full w-full items-center justify-center"
 						blurType="light"
-						blurAmount={100}
-						reducedTransparencyFallbackColor="white"
-						style={{
-							position: 'absolute',
-							backgroundColor: 'blue',
-							bottom: 0,
-							left: 0,
-							width: '100%',
-							height: '50%'
-						}}
-					/>
+						blurAmount={16}>
+						<PlayIcon name="play" size={92} colorClassName="bg-emerald-400" />
+					</Blur>
 				</Div>
 			</Animated.View>
-		</Animated.View>*/
-
-		<Div
-			className={`relative inset-0 aspect-square w-[40%] overflow-hidden rounded-full border-2 border-emerald-600`}>
-			<Div className="absolute inset-0 bg-emerald-500/40" />
-			{/* in terms of positioning and zIndex-ing everything before the BlurView will be blurred */}
-			<Blur
-				className="flex h-full w-full items-center justify-center"
-				blurType="light"
-				blurAmount={16}>
-				<PlayIcon name="play" size={92} colorClassName="bg-emerald-400" />
-			</Blur>
-		</Div>
+		</Animated.View>
 	);
 };
