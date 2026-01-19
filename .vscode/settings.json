@@ -49,5 +49,17 @@
     "ListFooterComponentClassName",
     "ListHeaderComponentClassName"
   ],
-  "tailwindCSS.classFunctions": ["useResolveClassNames"]
+  "tailwindCSS.classFunctions": ["useResolveClassNames"],
+
+  "bun.test.enabled": true,
+  "jest.enable": false,
+  "jest.autoRun": "off",
+  "jest.codeLens.enabled": false,
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "*.jsx": "$(capture).js, $(capture).spec.jsx, $(capture).test.jsx",
+    "*.tsx": "$(capture).ts, $(capture).spec.tsx, $(capture).stories.tsx, $(capture).test.tsx",
+    "*.ts": "$(capture).ts, $(capture).spec.ts, $(capture).spec.tsx, $(capture).test.ts",
+    "package.json": "yarn.lock, .editorconfig, .prettierrc, .prettierignore, .eslintrc, .eslintignore"
+  }
 }

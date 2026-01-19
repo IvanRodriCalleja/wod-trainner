@@ -1,4 +1,4 @@
-import { TimerPhase } from 'modules/timer/domain/types';
+import { TimerPhase } from 'modules/timer/domain/TimerPhase';
 
 import { GoIndicatorDisplay } from './timeCounter/GoIndicatorDisplay';
 import { PreCountdownDisplay } from './timeCounter/PreCountdownDisplay';
