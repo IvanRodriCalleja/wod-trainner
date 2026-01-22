@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
@@ -6,6 +5,7 @@ import { BlurView } from '@react-native-community/blur';
 import Animated, {
 	Easing,
 	interpolate,
+	runOnJS,
 	useAnimatedStyle,
 	useDerivedValue,
 	useSharedValue,
@@ -18,8 +18,10 @@ import { withUniwind } from 'uniwind';
 
 import { Div } from '@wod-trainer/strict-dom';
 
+import { TimerState } from '../../domain/TimerState';
+
 type PauseOverlayProps = {
-	visible: boolean;
+	phase: TimerState;
 	toggleTimer: () => void;
 };
 
@@ -31,39 +33,37 @@ const PlayIcon = withUniwind(Ionicons, {
 		styleProperty: 'backgroundColor'
 	}
 });
-export const PauseOverlay = ({ visible, toggleTimer }: PauseOverlayProps) => {
-	const showProgress = useSharedValue(0);
+export const PauseOverlay = ({ phase, toggleTimer }: PauseOverlayProps) => {
+	const showPlayButton = phase === TimerState.NOT_STARTED || phase === TimerState.PAUSED;
+	const isInteractive = phase !== TimerState.COMPLETED;
+
+	// Initialize based on initial state - visible if NOT_STARTED or PAUSED
+	const showProgress = useSharedValue(showPlayButton ? 1 : 0);
 	const breathingScale = useSharedValue(1);
 	const pressScale = useSharedValue(1);
 	const rippleScale = useSharedValue(0);
 	const rippleOpacity = useSharedValue(0);
 
-	useEffect(() => {
-		showProgress.value = withSpring(visible ? 1 : 0, {
-			stiffness: 300,
-			damping: 25
-		});
+	const startBreathingAnimation = () => {
+		breathingScale.value = withRepeat(
+			withSequence(
+				withTiming(1.05, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+				withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+			),
+			-1,
+			true
+		);
+	};
 
-		if (visible) {
-			breathingScale.value = withRepeat(
-				withSequence(
-					withTiming(1.05, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-					withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) })
-				),
-				-1,
-				true
-			);
-		} else {
-			breathingScale.value = withTiming(1, { duration: 200 });
-		}
-	}, [visible, showProgress, breathingScale]);
+	const stopBreathingAnimation = () => {
+		breathingScale.value = withTiming(1, { duration: 200 });
+	};
 
-	const pointerEvents = useDerivedValue(() => (showProgress.value > 0.5 ? 'auto' : 'none'));
+	const pointerEvents = useDerivedValue(() => (isInteractive ? 'auto' : 'none'));
 
 	const containerStyle = useAnimatedStyle(() => ({
 		opacity: showProgress.value,
-		transform: [{ scale: interpolate(showProgress.value, [0, 1], [0.8, 1]) }],
-		pointerEvents: pointerEvents.value
+		transform: [{ scale: interpolate(showProgress.value, [0, 1], [0.8, 1]) }]
 	}));
 
 	const breathingStyle = useAnimatedStyle(() => ({
@@ -89,14 +89,32 @@ export const PauseOverlay = ({ visible, toggleTimer }: PauseOverlayProps) => {
 		pressScale.value = withSpring(1, { stiffness: 400, damping: 15 });
 	};
 
+	const handlePress = () => {
+		if (showPlayButton) {
+			// Visible → Running: fade-out, then toggle
+			stopBreathingAnimation();
+			showProgress.value = withTiming(0, { duration: 250, easing: Easing.out(Easing.ease) }, () => {
+				runOnJS(toggleTimer)();
+			});
+		} else {
+			// Running → Paused: toggle, then fade-in
+			toggleTimer();
+			showProgress.value = withSpring(1, { stiffness: 300, damping: 25 }, () => {
+				runOnJS(startBreathingAnimation)();
+			});
+		}
+	};
+
 	return (
-		<Animated.View style={containerStyle} className="absolute inset-0 z-20">
-			<Animated.View style={breathingStyle}>
-				<Pressable
-					style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}
-					onPress={toggleTimer}
-					onPressIn={handlePressIn}
-					onPressOut={handlePressOut}>
+		<Animated.View style={{ pointerEvents: pointerEvents.value }} className="absolute inset-0 z-20">
+			<Pressable
+				className="h-full w-full items-center justify-center"
+				onPress={handlePress}
+				onPressIn={showPlayButton ? handlePressIn : undefined}
+				onPressOut={showPlayButton ? handlePressOut : undefined}>
+				<Animated.View
+					style={[containerStyle, breathingStyle]}
+					pointerEvents={showPlayButton ? 'auto' : 'none'}>
 					<Div
 						className={`relative aspect-square w-[40%] overflow-hidden rounded-full border-2 border-emerald-600`}>
 						<Div className="absolute inset-0 bg-emerald-500/40" />
@@ -109,8 +127,8 @@ export const PauseOverlay = ({ visible, toggleTimer }: PauseOverlayProps) => {
 							<PlayIcon name="play" size={92} colorClassName="bg-emerald-400" />
 						</Blur>
 					</Div>
-				</Pressable>
-			</Animated.View>
+				</Animated.View>
+			</Pressable>
 		</Animated.View>
 	);
 };
