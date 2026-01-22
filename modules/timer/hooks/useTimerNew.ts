@@ -16,21 +16,24 @@ const initialPlaceholderFrame: TimerFrame = {
 	phase: TimerPhase.PLACEHOLDER,
 	workoutType: WorkoutType.REST,
 	time: 0,
-	remainingTotalTime: 0
+	remainingTotalTime: 0,
+	progress: 0
 };
 
 const countDownFrames: TimerFrame[] = Array.from({ length: 10 }, (_, i) => ({
 	phase: TimerPhase.PRE_COUNTDOWN,
 	workoutType: WorkoutType.REST,
 	time: 10 - i,
-	remainingTotalTime: 0 // Not shown for count down
+	remainingTotalTime: 0, // Not shown for count down
+	progress: 0
 }));
 
 const goFrame: TimerFrame = {
 	phase: TimerPhase.GO,
 	workoutType: WorkoutType.REST,
 	time: 0,
-	remainingTotalTime: 0
+	remainingTotalTime: 0,
+	progress: 0
 };
 
 const compileTrainingTimer = (trainingTimer: TrainingTimer): TimerFrame[] => {
@@ -45,11 +48,14 @@ const compileTrainingTimer = (trainingTimer: TrainingTimer): TimerFrame[] => {
 			// We create as many frames as seconds in the pase, one frame per second
 			const frames = Array.from({ length: secondsInPase }, (_, i) => {
 				frameCount++;
+				const progress = 1 - (secondsInPase - i) / secondsInPase;
+
 				return {
 					phase: TimerPhase.RUNNING,
 					workoutType: trainingTimer.workoutType,
 					time: secondsInPase - i,
-					remainingTotalTime: totalTrainingTime - frameCount
+					remainingTotalTime: totalTrainingTime - frameCount,
+					progress
 				} satisfies TimerFrame;
 			});
 

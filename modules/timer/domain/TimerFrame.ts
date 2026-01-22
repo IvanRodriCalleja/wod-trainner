@@ -8,4 +8,5 @@ export type TimerFrame = {
 	workoutType: WorkoutType;
 	time: TimerTime;
 	remainingTotalTime: TimerTime;
+	progress: number;
 };

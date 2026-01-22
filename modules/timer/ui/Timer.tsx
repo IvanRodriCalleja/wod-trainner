@@ -19,7 +19,7 @@ export const Timer = ({ trainingTimer }: TimerProps) => {
 	return (
 		<Div className="relative flex aspect-square w-full items-center justify-center">
 			<PulsingRing colorClassName={colorClassName} />
-			<CircularProgress progress={0.5} colorClassName={colorClassName} isPaused={true} />
+			<CircularProgress progress={frame.progress} colorClassName={colorClassName} isPaused={true} />
 			<TimeCounter colorClassName={colorClassName} frame={frame} />
 			<PauseOverlay phase={timerState} toggleTimer={toggleTimer} />
 		</Div>

@@ -18,7 +18,7 @@ export const PreCountdownDisplay = ({ frame }: PreCountdownDisplayProps) => {
 	return (
 		<View className="absolute inset-0 flex items-center justify-center">
 			<Animated.View style={animatedStyle}>
-				<Span className={`font-mono-black text-center text-8xl text-red-500`}>{displayValue}</Span>
+				<Span className={`font-mono-black text-center text-9xl text-red-500`}>{displayValue}</Span>
 			</Animated.View>
 		</View>
 	);

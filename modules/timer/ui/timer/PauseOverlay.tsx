@@ -7,7 +7,6 @@ import Animated, {
 	interpolate,
 	runOnJS,
 	useAnimatedStyle,
-	useDerivedValue,
 	useSharedValue,
 	withRepeat,
 	withSequence,
@@ -35,7 +34,6 @@ const PlayIcon = withUniwind(Ionicons, {
 });
 export const PauseOverlay = ({ phase, toggleTimer }: PauseOverlayProps) => {
 	const showPlayButton = phase === TimerState.NOT_STARTED || phase === TimerState.PAUSED;
-	const isInteractive = phase !== TimerState.COMPLETED;
 
 	// Initialize based on initial state - visible if NOT_STARTED or PAUSED
 	const showProgress = useSharedValue(showPlayButton ? 1 : 0);
@@ -58,8 +56,6 @@ export const PauseOverlay = ({ phase, toggleTimer }: PauseOverlayProps) => {
 	const stopBreathingAnimation = () => {
 		breathingScale.value = withTiming(1, { duration: 200 });
 	};
-
-	const pointerEvents = useDerivedValue(() => (isInteractive ? 'auto' : 'none'));
 
 	const containerStyle = useAnimatedStyle(() => ({
 		opacity: showProgress.value,
@@ -90,6 +86,8 @@ export const PauseOverlay = ({ phase, toggleTimer }: PauseOverlayProps) => {
 	};
 
 	const handlePress = () => {
+		if (phase === TimerState.COMPLETED) return;
+
 		if (showPlayButton) {
 			// Visible → Running: fade-out, then toggle
 			stopBreathingAnimation();
@@ -106,7 +104,7 @@ export const PauseOverlay = ({ phase, toggleTimer }: PauseOverlayProps) => {
 	};
 
 	return (
-		<Animated.View style={{ pointerEvents: pointerEvents.value }} className="absolute inset-0 z-20">
+		<Animated.View className="absolute inset-0 z-20">
 			<Pressable
 				className="h-full w-full items-center justify-center"
 				onPress={handlePress}
