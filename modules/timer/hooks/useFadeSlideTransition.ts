@@ -18,6 +18,7 @@ const SLIDE_DISTANCE = 20;
 export const useFadeSlideTransition = <T extends number | string>(value: T) => {
 	const opacity = useSharedValue(1);
 	const translateY = useSharedValue(0);
+	// TODO: Is it needed the displayValue? it shouldn't
 	const [displayValue, setDisplayValue] = useState(value);
 	const isFirstRender = useRef(true);
 

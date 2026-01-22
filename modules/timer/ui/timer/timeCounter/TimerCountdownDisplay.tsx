@@ -4,21 +4,25 @@ import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanima
 
 import { Span } from '@wod-trainer/strict-dom';
 
-import { bgToTextColor, formatTime } from '../../../domain/timerUtils';
+import { TimerFrame } from 'modules/timer/domain/TimerFrame';
+import { formatTime } from 'modules/timer/domain/TimerTime';
+
+import { bgToTextColor } from '../../../domain/timerUtils';
 
 type TimerCountdownDisplayProps = {
 	colorClassName: string;
+	frame: TimerFrame;
 };
 
-export const TimerCountdownDisplay = ({ colorClassName }: TimerCountdownDisplayProps) => {
+export const TimerCountdownDisplay = ({ colorClassName, frame }: TimerCountdownDisplayProps) => {
 	const opacity = useSharedValue(1);
-	const textColorClass = bgToTextColor(colorClassName);
+	const textColorClass = bgToTextColor(colorClassName); // TODO: Review
 
 	const animatedStyle = useAnimatedStyle(() => ({
 		opacity: opacity.value
 	}));
 
-	const formattedTime = formatTime(10000);
+	const formattedTime = formatTime(frame.time);
 
 	return (
 		<View className="absolute inset-0 flex items-center justify-center">

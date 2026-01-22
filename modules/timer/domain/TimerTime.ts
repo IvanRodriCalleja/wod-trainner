@@ -1,7 +1,8 @@
 // Time in seconds
 export type TimerTime = number;
 
-// TODDO: Review output
-export const formatTimerTime = (time: TimerTime): string => {
-	return time.toString().padStart(2, '0');
-};
+export function formatTime(timer: TimerTime): string {
+	const minutes = Math.floor(timer / 60);
+	const seconds = timer % 60;
+	return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}

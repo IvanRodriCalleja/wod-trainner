@@ -1,6 +1,7 @@
 import { Div } from '@wod-trainer/strict-dom';
 
 import { TimerState } from '../domain/TimerState';
+import { TrainingTimer } from '../domain/TrainningTimer';
 import { useTimerNew } from '../hooks/useTimerNew';
 import { CircularProgress } from './timer/Circle';
 import { PauseOverlay } from './timer/PauseOverlay';
@@ -9,18 +10,19 @@ import { TimeCounter } from './timer/TimeCounter';
 
 const colorClassName = 'bg-amber-400';
 
-export const Timer = () => {
-	const { timerState } = useTimerNew();
+type TimerProps = {
+	trainingTimer: TrainingTimer;
+};
+
+export const Timer = ({ trainingTimer }: TimerProps) => {
+	const { timerState, frame, toggleTimer } = useTimerNew({ trainingTimer });
 
 	return (
 		<Div className="relative flex aspect-square w-full items-center justify-center">
 			<PulsingRing colorClassName={colorClassName} />
 			<CircularProgress progress={0.5} colorClassName={colorClassName} isPaused={true} />
-			<TimeCounter colorClassName={colorClassName} />
-			<PauseOverlay
-				visible={timerState === TimerState.NOT_STARTED}
-				colorClassName={colorClassName}
-			/>
+			<TimeCounter colorClassName={colorClassName} frame={frame} />
+			<PauseOverlay visible={timerState === TimerState.NOT_STARTED} toggleTimer={toggleTimer} />
 		</Div>
 	);
 };

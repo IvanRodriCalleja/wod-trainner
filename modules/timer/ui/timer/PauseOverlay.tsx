@@ -20,8 +20,7 @@ import { Div } from '@wod-trainer/strict-dom';
 
 type PauseOverlayProps = {
 	visible: boolean;
-	color: string;
-	onPress?: () => void;
+	toggleTimer: () => void;
 };
 
 const Blur = withUniwind(BlurView);
@@ -32,7 +31,7 @@ const PlayIcon = withUniwind(Ionicons, {
 		styleProperty: 'backgroundColor'
 	}
 });
-export const PauseOverlay = ({ visible, color, onPress }: PauseOverlayProps) => {
+export const PauseOverlay = ({ visible, toggleTimer }: PauseOverlayProps) => {
 	const showProgress = useSharedValue(0);
 	const breathingScale = useSharedValue(1);
 	const pressScale = useSharedValue(1);
@@ -95,7 +94,7 @@ export const PauseOverlay = ({ visible, color, onPress }: PauseOverlayProps) => 
 			<Animated.View style={breathingStyle}>
 				<Pressable
 					style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}
-					onPress={onPress}
+					onPress={toggleTimer}
 					onPressIn={handlePressIn}
 					onPressOut={handlePressOut}>
 					<Div
@@ -115,6 +114,8 @@ export const PauseOverlay = ({ visible, color, onPress }: PauseOverlayProps) => 
 		</Animated.View>
 	);
 };
+
+// TODO: ReMOVE FOR UNIWIND
 
 const styles = StyleSheet.create({
 	ripple: {

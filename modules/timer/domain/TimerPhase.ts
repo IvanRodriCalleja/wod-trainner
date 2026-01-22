@@ -1,4 +1,5 @@
 export enum TimerPhase {
+	PLACEHOLDER = 'PLACEHOLDER',
 	PRE_COUNTDOWN = 'PRE_COUNTDOWN',
 	GO = 'GO',
 	RUNNING = 'RUNNING'
