@@ -95,8 +95,7 @@ export const CircularProgress = ({ progress, colorClassName, isPaused }: Circula
 						r={radius}
 						style="stroke"
 						strokeWidth={strokeWidth}
-						colorClassName={colorClassName}
-						opacity={0.15}
+						colorClassName="bg-neutral-500"
 					/>
 
 					{/* Progress arc */}

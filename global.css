@@ -6,8 +6,24 @@
 @source '../node_modules/heroui-native/lib';
 
 @theme static {
-	--color-amber-500: #22c55e;
-	--color-regal-blue: #243c5a;
-
-	--color-al-teal-10: #eaeeee;
+	 /* Font Families - Sans */                                       
+	--font-sans: 'InstrumentSans_400Regular';                 
+	--font-sans-medium: 'InstrumentSans_500Medium';           
+	--font-sans-semibold: 'InstrumentSans_600SemiBold';       
+	--font-sans-bold: 'InstrumentSans_700Bold';               
+	--font-sans-italic: 'InstrumentSans_400Regular_Italic';   
+	--font-sans-medium-italic: 'InstrumentSans_500Medium_Italic';
+	--font-sans-semibold-italic: 'InstrumentSans_600SemiBold_Italic';                            
+	--font-sans-bold-italic: 'InstrumentSans_700Bold_Italic'; 
+	
+	/* Font Families - Mono */                                
+	--font-mono-thin: 'GeistMono_100Thin';                    
+	--font-mono-extralight: 'GeistMono_200ExtraLight';        
+	--font-mono-light: 'GeistMono_300Light';                  
+	--font-mono: 'GeistMono_400Regular';                      
+	--font-mono-medium: 'GeistMono_500Medium';                
+	--font-mono-semibold: 'GeistMono_600SemiBold';            
+	--font-mono-bold: 'GeistMono_700Bold';                    
+	--font-mono-extrabold: 'GeistMono_800ExtraBold';          
+	--font-mono-black: 'GeistMono_900Black';    
 }

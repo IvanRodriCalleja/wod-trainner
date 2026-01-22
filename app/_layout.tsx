@@ -4,6 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import { Uniwind } from 'uniwind';
 
+import { DesignSystemProvider } from '@wod-trainer/design-system/providers';
 import { useLocales } from '@wod-trainer/internationalization/infra';
 import { I18nProvider } from '@wod-trainer/internationalization/ui/I18nProvider';
 
@@ -18,9 +19,11 @@ const RootLayout = () => {
 		<GestureHandlerRootView style={{ flex: 1 }}>
 			<HeroUINativeProvider config={{ devInfo: { stylingPrinciples: false } }}>
 				<I18nProvider currentLanguage={lang} locales={locales}>
-					<Stack>
-						<Stack.Screen name="index" options={{ headerShown: false }} />
-					</Stack>
+					<DesignSystemProvider>
+						<Stack>
+							<Stack.Screen name="index" options={{ headerShown: false }} />
+						</Stack>
+					</DesignSystemProvider>
 				</I18nProvider>
 			</HeroUINativeProvider>
 		</GestureHandlerRootView>
