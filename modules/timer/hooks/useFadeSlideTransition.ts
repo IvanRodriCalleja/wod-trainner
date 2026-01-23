@@ -9,15 +9,15 @@ import {
 } from 'react-native-reanimated';
 
 const ANIMATION_DURATION = 150;
-const SLIDE_DISTANCE = 20;
+const SCALE_START = 0.7;
 
 /**
- * Hook for fade-slide transitions on value changes
- * Old value fades out sliding up, new value fades in from below
+ * Hook for fade-scale transitions on value changes
+ * Old value fades out while scaling down, new value fades in from small to normal
  */
 export const useFadeSlideTransition = <T extends number | string>(value: T) => {
 	const opacity = useSharedValue(1);
-	const translateY = useSharedValue(0);
+	const scale = useSharedValue(1);
 	// TODO: Is it needed the displayValue? it shouldn't
 	const [displayValue, setDisplayValue] = useState(value);
 	const isFirstRender = useRef(true);
@@ -28,20 +28,20 @@ export const useFadeSlideTransition = <T extends number | string>(value: T) => {
 			return;
 		}
 
-		// Animate out (fade + slide up), then animate in (fade + slide from below)
+		// Animate out (fade + scale down), then animate in (fade + scale up from small)
 		opacity.value = withSequence(
 			withTiming(0, { duration: ANIMATION_DURATION, easing: Easing.out(Easing.ease) }),
 			withTiming(1, { duration: ANIMATION_DURATION, easing: Easing.in(Easing.ease) })
 		);
 
-		translateY.value = withSequence(
-			withTiming(-SLIDE_DISTANCE, {
+		scale.value = withSequence(
+			withTiming(SCALE_START, {
 				duration: ANIMATION_DURATION,
 				easing: Easing.out(Easing.ease)
 			}),
-			// Jump to bottom position instantly
-			withTiming(SLIDE_DISTANCE, { duration: 0 }),
-			withTiming(0, { duration: ANIMATION_DURATION, easing: Easing.in(Easing.ease) })
+			// Jump to small size instantly for the new value
+			withTiming(SCALE_START, { duration: 0 }),
+			withTiming(1, { duration: ANIMATION_DURATION, easing: Easing.out(Easing.ease) })
 		);
 
 		// Update the display value at the midpoint of the animation
@@ -54,7 +54,7 @@ export const useFadeSlideTransition = <T extends number | string>(value: T) => {
 
 	const animatedStyle = useAnimatedStyle(() => ({
 		opacity: opacity.value,
-		transform: [{ translateY: translateY.value }]
+		transform: [{ scale: scale.value }]
 	}));
 
 	return { animatedStyle, displayValue };
