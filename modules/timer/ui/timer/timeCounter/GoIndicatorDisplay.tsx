@@ -14,16 +14,13 @@ import Animated, {
 
 import { Span } from '@wod-trainer/strict-dom';
 
-import { bgToTextColor } from '../../../domain/timerUtils';
-
 type GoIndicatorDisplayProps = {
-	colorClassName: string;
+	textColorClassName: string;
 };
 
-export const GoIndicatorDisplay = ({ colorClassName }: GoIndicatorDisplayProps) => {
+export const GoIndicatorDisplay = ({ textColorClassName }: GoIndicatorDisplayProps) => {
 	const scale = useSharedValue(0.5);
 	const opacity = useSharedValue(0);
-	const textColorClass = bgToTextColor(colorClassName);
 
 	useAnimatedReaction(
 		() => 1,
@@ -60,7 +57,7 @@ export const GoIndicatorDisplay = ({ colorClassName }: GoIndicatorDisplayProps) 
 	return (
 		<View className="absolute inset-0 flex items-center justify-center">
 			<Animated.View style={animatedStyle}>
-				<Span className={`text-center text-8xl font-bold ${textColorClass}`}>GO!</Span>
+				<Span className={`text-center text-8xl font-bold ${textColorClassName}`}>GO!</Span>
 			</Animated.View>
 		</View>
 	);
