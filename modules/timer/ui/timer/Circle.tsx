@@ -1,16 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { BlurMask, Canvas, Circle, Group, Path, Skia } from '@shopify/react-native-skia';
-import {
-	Easing,
-	useAnimatedReaction,
-	useDerivedValue,
-	useSharedValue,
-	withRepeat,
-	withSequence,
-	withTiming
-} from 'react-native-reanimated';
+import { Easing, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
 import { withUniwind } from 'uniwind';
 
 const UnfilledCircle = withUniwind(Circle, {
@@ -30,10 +22,9 @@ const FilledCircle = withUniwind(Path, {
 type CircularProgressProps = {
 	progress: number;
 	colorClassName: string;
-	isPaused: boolean;
 };
 
-export const CircularProgress = ({ progress, colorClassName, isPaused }: CircularProgressProps) => {
+export const CircularProgress = ({ progress, colorClassName }: CircularProgressProps) => {
 	const strokeWidth = 12;
 	const [size, setSize] = useState(0);
 
@@ -51,43 +42,16 @@ export const CircularProgress = ({ progress, colorClassName, isPaused }: Circula
 
 	// Animated values
 	const progressValue = useSharedValue(0);
-	const glowOpacity = useSharedValue(0.15);
 
-	useAnimatedReaction(
-		() => progress,
-		(current, previous) => {
-			if (current === previous) return;
-			progressValue.value = withTiming(current, {
-				duration: 100,
-				easing: Easing.linear
-			});
-		},
-		[progress]
-	);
-
-	useAnimatedReaction(
-		() => isPaused,
-		(paused, previousPaused) => {
-			if (paused === previousPaused) return;
-			if (paused) {
-				glowOpacity.value = withTiming(0, { duration: 300 });
-			} else {
-				glowOpacity.value = withRepeat(
-					withSequence(
-						withTiming(0.3, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-						withTiming(0.1, { duration: 1000, easing: Easing.inOut(Easing.ease) })
-					),
-					-1,
-					true
-				);
-			}
-		},
-		[isPaused]
-	);
+	useEffect(() => {
+		progressValue.value = withTiming(progress, {
+			duration: 100,
+			easing: Easing.linear
+		});
+	}, [progress]);
 
 	// Animate the "end" prop (0 to 1)
 	const animatedEnd = useDerivedValue(() => progressValue.value);
-	const animatedOpacity = useDerivedValue(() => (isPaused ? 0.5 : 1));
 
 	return (
 		<View
@@ -110,10 +74,7 @@ export const CircularProgress = ({ progress, colorClassName, isPaused }: Circula
 					/>
 
 					{/* Progress arc */}
-					<Group
-						opacity={animatedOpacity}
-						transform={[{ rotate: -Math.PI / 2 }]}
-						origin={{ x: center, y: center }}>
+					<Group transform={[{ rotate: -Math.PI / 2 }]} origin={{ x: center, y: center }}>
 						<FilledCircle
 							path={circlePath}
 							style="stroke"
@@ -127,7 +88,7 @@ export const CircularProgress = ({ progress, colorClassName, isPaused }: Circula
 
 					{/* Glow effect (on top) */}
 					<Group
-						opacity={glowOpacity}
+						opacity={0.3}
 						transform={[{ rotate: -Math.PI / 2 }]}
 						origin={{ x: center, y: center }}>
 						<FilledCircle

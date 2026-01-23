@@ -5,7 +5,6 @@ import { BlurView } from '@react-native-community/blur';
 import Animated, {
 	Easing,
 	interpolate,
-	runOnJS,
 	useAnimatedStyle,
 	useSharedValue,
 	withRepeat,
@@ -13,6 +12,7 @@ import Animated, {
 	withSpring,
 	withTiming
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { withUniwind } from 'uniwind';
 
 import { Div } from '@wod-trainer/strict-dom';
@@ -62,6 +62,10 @@ export const PauseOverlay = ({ phase, toggleTimer }: PauseOverlayProps) => {
 		transform: [{ scale: interpolate(showProgress.value, [0, 1], [0.8, 1]) }]
 	}));
 
+	const dimmingOverlayStyle = useAnimatedStyle(() => ({
+		opacity: interpolate(showProgress.value, [0, 1], [0, 0.5])
+	}));
+
 	const breathingStyle = useAnimatedStyle(() => ({
 		transform: [{ scale: breathingScale.value * pressScale.value }]
 	}));
@@ -92,19 +96,25 @@ export const PauseOverlay = ({ phase, toggleTimer }: PauseOverlayProps) => {
 			// Visible → Running: fade-out, then toggle
 			stopBreathingAnimation();
 			showProgress.value = withTiming(0, { duration: 250, easing: Easing.out(Easing.ease) }, () => {
-				runOnJS(toggleTimer)();
+				scheduleOnRN(toggleTimer);
 			});
 		} else {
 			// Running → Paused: toggle, then fade-in
 			toggleTimer();
 			showProgress.value = withSpring(1, { stiffness: 300, damping: 25 }, () => {
-				runOnJS(startBreathingAnimation)();
+				scheduleOnRN(startBreathingAnimation);
 			});
 		}
 	};
 
 	return (
 		<Animated.View className="absolute inset-0 z-20">
+			{/* Dimming overlay */}
+			<Animated.View
+				style={dimmingOverlayStyle}
+				className="absolute inset-0 rounded-full bg-black"
+				pointerEvents="none"
+			/>
 			<Pressable
 				className="h-full w-full items-center justify-center"
 				onPress={handlePress}
