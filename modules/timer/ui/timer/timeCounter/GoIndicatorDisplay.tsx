@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
 import { View } from 'react-native';
 
 import Animated, {
 	Easing,
+	useAnimatedReaction,
 	useAnimatedStyle,
 	useSharedValue,
+	withDelay,
 	withRepeat,
 	withSequence,
 	withSpring,
@@ -24,28 +25,32 @@ export const GoIndicatorDisplay = ({ colorClassName }: GoIndicatorDisplayProps) 
 	const opacity = useSharedValue(0);
 	const textColorClass = bgToTextColor(colorClassName);
 
-	useEffect(() => {
-		// Entrance animation: scale up with spring + fade in
-		opacity.value = withTiming(1, { duration: 200 });
-		scale.value = withSpring(1, {
-			damping: 12,
-			stiffness: 200
-		});
+	useAnimatedReaction(
+		() => 1,
+		(_, previous) => {
+			if (previous !== null) return; // Only run on mount
 
-		// After entrance, start pulsing
-		const pulseDelay = setTimeout(() => {
-			scale.value = withRepeat(
-				withSequence(
-					withTiming(1.05, { duration: 500, easing: Easing.inOut(Easing.ease) }),
-					withTiming(1, { duration: 500, easing: Easing.inOut(Easing.ease) })
-				),
-				-1,
-				true
+			// Entrance animation: fade in
+			opacity.value = withTiming(1, { duration: 200 });
+
+			// Scale: spring entrance, then pulse after delay
+			scale.value = withSequence(
+				withSpring(1, { damping: 12, stiffness: 200 }),
+				withDelay(
+					100,
+					withRepeat(
+						withSequence(
+							withTiming(1.05, { duration: 500, easing: Easing.inOut(Easing.ease) }),
+							withTiming(1, { duration: 500, easing: Easing.inOut(Easing.ease) })
+						),
+						-1,
+						true
+					)
+				)
 			);
-		}, 300);
-
-		return () => clearTimeout(pulseDelay);
-	}, []);
+		},
+		[]
+	);
 
 	const animatedStyle = useAnimatedStyle(() => ({
 		opacity: opacity.value,

@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 
 import { Canvas, Circle } from '@shopify/react-native-skia';
 import {
 	Easing,
 	cancelAnimation,
+	useAnimatedReaction,
 	useDerivedValue,
 	useSharedValue,
 	withRepeat,
@@ -39,34 +40,40 @@ export const PulsingRing = ({ colorClassName, isRunning }: PulsingRingProps) => 
 	const scale = useSharedValue(1);
 	const opacity = useSharedValue(0.3);
 
-	useEffect(() => {
-		if (isRunning) {
-			// Scale animation: 1 -> 1.08 -> 1
-			scale.value = withRepeat(
-				withSequence(
-					withTiming(maxScale, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-					withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) })
-				),
-				-1,
-				true
-			);
+	useAnimatedReaction(
+		() => isRunning,
+		(running, previousRunning) => {
+			if (running === previousRunning) return;
 
-			// Opacity animation: 0.3 -> 0 -> 0.3
-			opacity.value = withRepeat(
-				withSequence(
-					withTiming(0, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-					withTiming(0.4, { duration: 1000, easing: Easing.inOut(Easing.ease) })
-				),
-				-1,
-				true
-			);
-		} else {
-			cancelAnimation(scale);
-			cancelAnimation(opacity);
-			scale.value = 1;
-			opacity.value = 0;
-		}
-	}, [isRunning, scale, opacity]);
+			if (running) {
+				// Scale animation: 1 -> 1.1 -> 1
+				scale.value = withRepeat(
+					withSequence(
+						withTiming(maxScale, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+						withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+					),
+					-1,
+					true
+				);
+
+				// Opacity animation: 0 -> 0.4 -> 0
+				opacity.value = withRepeat(
+					withSequence(
+						withTiming(0, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+						withTiming(0.4, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+					),
+					-1,
+					true
+				);
+			} else {
+				cancelAnimation(scale);
+				cancelAnimation(opacity);
+				scale.value = 1;
+				opacity.value = 0;
+			}
+		},
+		[isRunning]
+	);
 
 	const animatedRadius = useDerivedValue(() => radius * scale.value);
 	const animatedOpacity = useDerivedValue(() => opacity.value);

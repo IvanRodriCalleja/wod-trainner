@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 
 import { BlurMask, Canvas, Circle, Group, Path, Skia } from '@shopify/react-native-skia';
 import {
 	Easing,
+	useAnimatedReaction,
 	useDerivedValue,
 	useSharedValue,
 	withRepeat,
@@ -52,27 +53,37 @@ export const CircularProgress = ({ progress, colorClassName, isPaused }: Circula
 	const progressValue = useSharedValue(0);
 	const glowOpacity = useSharedValue(0.15);
 
-	useEffect(() => {
-		progressValue.value = withTiming(progress, {
-			duration: 100,
-			easing: Easing.linear
-		});
-	}, [progress]);
+	useAnimatedReaction(
+		() => progress,
+		(current, previous) => {
+			if (current === previous) return;
+			progressValue.value = withTiming(current, {
+				duration: 100,
+				easing: Easing.linear
+			});
+		},
+		[progress]
+	);
 
-	useEffect(() => {
-		if (isPaused) {
-			glowOpacity.value = withTiming(0, { duration: 300 });
-		} else {
-			glowOpacity.value = withRepeat(
-				withSequence(
-					withTiming(0.3, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-					withTiming(0.1, { duration: 1000, easing: Easing.inOut(Easing.ease) })
-				),
-				-1,
-				true
-			);
-		}
-	}, [isPaused]);
+	useAnimatedReaction(
+		() => isPaused,
+		(paused, previousPaused) => {
+			if (paused === previousPaused) return;
+			if (paused) {
+				glowOpacity.value = withTiming(0, { duration: 300 });
+			} else {
+				glowOpacity.value = withRepeat(
+					withSequence(
+						withTiming(0.3, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+						withTiming(0.1, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+					),
+					-1,
+					true
+				);
+			}
+		},
+		[isPaused]
+	);
 
 	// Animate the "end" prop (0 to 1)
 	const animatedEnd = useDerivedValue(() => progressValue.value);
