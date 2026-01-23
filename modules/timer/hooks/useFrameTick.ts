@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 
-import { runOnJS, useFrameCallback } from 'react-native-reanimated';
+import { useFrameCallback } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 
 export type UseFrameTickOptions = {
 	maxTicks: number;
@@ -27,14 +28,14 @@ export const useFrameTick = ({
 		// Stop when we've exhausted all ticks
 		if (tickIndexRef.current >= maxTicks) {
 			frameCallback.setActive(false);
-			if (onComplete) runOnJS(onComplete)();
+			if (onComplete) scheduleOnRN(onComplete);
 			return;
 		}
 
 		// First frame ever - tick immediately
 		if (lastTickTimeRef.current === null) {
 			lastTickTimeRef.current = frameInfo.timestamp;
-			runOnJS(onTick)(tickIndexRef.current);
+			scheduleOnRN(onTick, tickIndexRef.current);
 			tickIndexRef.current++;
 			return;
 		}
@@ -42,7 +43,7 @@ export const useFrameTick = ({
 		// Tick every 1000ms (also handles resume - time gap will be >= 1000)
 		if (frameInfo.timestamp - lastTickTimeRef.current >= 1000) {
 			lastTickTimeRef.current = frameInfo.timestamp;
-			runOnJS(onTick)(tickIndexRef.current);
+			scheduleOnRN(onTick, tickIndexRef.current);
 			tickIndexRef.current++;
 		}
 	}, false);
