@@ -52,7 +52,8 @@
     "tailwind-merge": "^3.4.0",
     "tailwind-variants": "^3.2.2",
     "tailwindcss": "^4.1.18",
-    "uniwind": "^1.2.4"
+    "uniwind": "^1.2.4",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@testing-library/react-native": "^13.3.3",

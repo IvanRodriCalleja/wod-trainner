@@ -1,7 +1,7 @@
 import { Div } from '@wod-trainer/strict-dom';
 
 import { TimerState } from '../domain/TimerState';
-import { TrainingTimer } from '../domain/TrainningTimer';
+import { TrainingTimer } from '../domain/TrainingTimer';
 import { useTimerNew } from '../hooks/useTimerNew';
 import { CircularProgress } from './timer/Circle';
 import { PauseOverlay } from './timer/PauseOverlay';

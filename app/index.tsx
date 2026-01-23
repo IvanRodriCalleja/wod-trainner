@@ -1,6 +1,6 @@
 import { Div } from '@wod-trainer/strict-dom';
 
-import { TrainingTimer } from 'modules/timer/domain/TrainningTimer';
+import { TrainingTimer } from 'modules/timer/domain/TrainingTimer';
 import { Timer } from 'modules/timer/ui/Timer';
 import { WorkoutType } from 'modules/workout/domain/WorkoutType';
 
