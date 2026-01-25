@@ -1,8 +1,9 @@
 import { useRef } from 'react';
 
+import { useFrameCallback } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
-import { useFrameCallbackWithSelfRef } from './useFrameCallbackWithSelfRef';
+type FrameCallbackController = ReturnType<typeof useFrameCallback>;
 
 export type UseFrameTickOptions = {
 	maxTicks: number;
@@ -18,17 +19,23 @@ export type UseFrameTickOptions = {
  */
 export const useFrameTick = ({
 	maxTicks,
-	startAtIndex,
+	startAtIndex = 0,
 	onTick,
 	onComplete
 }: UseFrameTickOptions) => {
 	const lastTickTimeRef = useRef<number | null>(null);
-	const tickIndexRef = useRef(startAtIndex ?? 0);
+	const tickIndexRef = useRef(startAtIndex);
+	const controllerRef = useRef<FrameCallbackController | null>(null);
 
-	const frameCallback = useFrameCallbackWithSelfRef((frameInfo, controller) => {
+	// Helper to stop the frame callback from the JS thread
+	const stopFrameCallback = () => {
+		controllerRef.current?.setActive(false);
+	};
+
+	const frameCallback = useFrameCallback(frameInfo => {
 		// Stop when we've exhausted all ticks
 		if (tickIndexRef.current >= maxTicks) {
-			controller.setActive(false);
+			scheduleOnRN(stopFrameCallback);
 			if (onComplete) scheduleOnRN(onComplete);
 			return;
 		}
@@ -48,6 +55,8 @@ export const useFrameTick = ({
 			tickIndexRef.current++;
 		}
 	}, false);
+
+	controllerRef.current = frameCallback;
 
 	return {
 		start: () => frameCallback.setActive(true),
