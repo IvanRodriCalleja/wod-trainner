@@ -223,9 +223,6 @@ half4 main(float2 coord) {
   // Normalize to 0-1
   float2 uv = coord / u_resolution;
 
-  // Flip Y to match WebGL convention
-  uv.y = 1.0 - uv.y;
-
   float2 imageUV = uv;
   float2 objectUV = uv;
 
@@ -419,9 +416,12 @@ half4 main(float2 coord) {
   float diagBLtoTR = rotatedUV.x - rotatedUV.y;
   float diagTLtoBR = rotatedUV.x + rotatedUV.y;
 
-  // Material-based color modifications
+  // Colors - matches original paper-design shader logic
+  // Original uses: color1 = vec3(.98, 0.98, 1.) and color2 = vec3(.1, .1, .1 + .1 * smoothstep(...))
+  // We use u_colorLight/u_colorDark but add the dynamic blue tint to dark color
+  float dynamicBlue = 0.1 * smoothstep(0.7, 1.3, diagTLtoBR);
   float3 color1 = float3(u_colorLight);
-  float3 color2 = float3(u_colorDark) + float3(0.0, 0.0, 0.1 * smoothstep(0.7, 1.3, diagTLtoBR));
+  float3 color2 = float3(u_colorDark) + float3(0.0, 0.0, dynamicBlue);
 
   // Material modifications
   float materialContrast = 1.0;

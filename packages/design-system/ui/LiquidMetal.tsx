@@ -29,89 +29,235 @@ import {
 	liquidMetalShader
 } from './liquidMetal/shaders';
 
-/** Available metal variant presets */
-export type LiquidMetalVariant =
-	| 'silver'
-	| 'silver-light'
-	| 'gold'
-	| 'bronze'
-	| 'purple'
-	| 'blue'
-	| 'pink'
-	| 'yellow'
-	| 'green'
-	| 'red'
-	| 'cyan'
-	| 'orange';
+// ============================================================================
+// Color Utilities
+// ============================================================================
 
-/** Metal color presets - [light/highlight color, dark/shadow color] as RGB hex */
-export const LiquidMetalPresets: Record<LiquidMetalVariant, { light: string; dark: string }> = {
-	silver: {
-		light: '#FAFAFF', // Cool white highlight
-		dark: '#1A1A1A' // Near black shadow
-	},
-	'silver-light': {
-		light: '#FFFFFF', // Pure white highlight
-		dark: '#4A4A4A' // Medium gray shadow (lighter contrast)
-	},
-	gold: {
-		light: '#FFE4A0', // Warm golden highlight
-		dark: '#5C4515' // Dark brown-gold shadow
-	},
-	bronze: {
-		light: '#E8B87C', // Copper-orange highlight
-		dark: '#3D2812' // Dark brown shadow
-	},
-	purple: {
-		light: '#E8C4FF', // Lavender highlight
-		dark: '#2A1040' // Deep purple shadow
-	},
-	blue: {
-		light: '#C4E4FF', // Light sky blue highlight
-		dark: '#0A2840' // Deep navy shadow
-	},
-	pink: {
-		light: '#FFC4E8', // Soft pink highlight
-		dark: '#401028' // Deep magenta shadow
-	},
-	yellow: {
-		light: '#FFFF90', // Bright yellow highlight
-		dark: '#4A4500' // Dark olive shadow
-	},
-	green: {
-		light: '#C4FFC4', // Mint green highlight
-		dark: '#0A400A' // Deep forest shadow
-	},
-	red: {
-		light: '#FFC4C4', // Soft red highlight
-		dark: '#400A0A' // Deep crimson shadow
-	},
-	cyan: {
-		light: '#C4FFFF', // Aqua highlight
-		dark: '#0A4040' // Deep teal shadow
-	},
-	orange: {
-		light: '#FFD4A0', // Peach/orange highlight
-		dark: '#402008' // Dark burnt orange shadow
+/** Metal colors configuration */
+export interface LiquidMetalColors {
+	/** Highlight/light reflection color */
+	colorLight: string;
+	/** Shadow/dark reflection color */
+	colorDark: string;
+	/** Background color (behind transparent areas) */
+	colorBack?: string;
+	/** Tint overlay color (color burn blend on highlights) */
+	colorTint?: string;
+}
+
+/** Convert HSL to hex color */
+function hslToHex(h: number, s: number, l: number): string {
+	const hue = ((h % 360) + 360) % 360;
+	const sat = Math.max(0, Math.min(1, s));
+	const light = Math.max(0, Math.min(1, l));
+
+	const c = (1 - Math.abs(2 * light - 1)) * sat;
+	const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
+	const m = light - c / 2;
+
+	let r = 0;
+	let g = 0;
+	let b = 0;
+	if (hue < 60) {
+		r = c;
+		g = x;
+	} else if (hue < 120) {
+		r = x;
+		g = c;
+	} else if (hue < 180) {
+		g = c;
+		b = x;
+	} else if (hue < 240) {
+		g = x;
+		b = c;
+	} else if (hue < 300) {
+		r = x;
+		b = c;
+	} else {
+		r = c;
+		b = x;
 	}
-};
+
+	const toHex = (n: number) =>
+		Math.round((n + m) * 255)
+			.toString(16)
+			.padStart(2, '0');
+	return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
+}
+
+/** Parse hex color to RGB values (0-255) */
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+	const h = hex.replace('#', '');
+	return {
+		r: parseInt(h.slice(0, 2), 16),
+		g: parseInt(h.slice(2, 4), 16),
+		b: parseInt(h.slice(4, 6), 16)
+	};
+}
+
+/** Lighten a hex color */
+function lightenColor(hex: string, amount: number): string {
+	const { r, g, b } = hexToRgb(hex);
+	const lighten = (c: number) => Math.min(255, Math.round(c + (255 - c) * amount));
+	const toHex = (n: number) => n.toString(16).padStart(2, '0');
+	return `#${toHex(lighten(r))}${toHex(lighten(g))}${toHex(lighten(b))}`.toUpperCase();
+}
+
+/** Darken a hex color */
+function darkenColor(hex: string, amount: number): string {
+	const { r, g, b } = hexToRgb(hex);
+	const darken = (c: number) => Math.max(0, Math.round(c * (1 - amount)));
+	const toHex = (n: number) => n.toString(16).padStart(2, '0');
+	return `#${toHex(darken(r))}${toHex(darken(g))}${toHex(darken(b))}`.toUpperCase();
+}
+
+// ============================================================================
+// Metal Color Generators
+// ============================================================================
+
+/**
+ * Create silver metal colors (matches original paper-design shader)
+ * High contrast, cool white highlights with near-black shadows
+ */
+export function createSilverMetal(): LiquidMetalColors {
+	return {
+		colorLight: '#FAFAFF', // Cool white with slight blue
+		colorDark: '#1A1A1A', // Near black
+		colorTint: '#FFFFFF'
+	};
+}
+
+/**
+ * Create light silver metal colors
+ * Lower contrast, softer appearance
+ */
+export function createSilverLightMetal(): LiquidMetalColors {
+	return {
+		colorLight: '#FFFFFF',
+		colorDark: '#6A6A6A',
+		colorTint: '#FFFFFF'
+	};
+}
+
+/**
+ * Create gold metal colors
+ * Warm golden tones
+ */
+export function createGoldMetal(): LiquidMetalColors {
+	return {
+		colorLight: '#FFE4A0',
+		colorDark: '#5C4515',
+		colorTint: '#FFFAF0'
+	};
+}
+
+/**
+ * Create bronze/copper metal colors
+ */
+export function createBronzeMetal(): LiquidMetalColors {
+	return {
+		colorLight: '#E8B87C',
+		colorDark: '#3D2812',
+		colorTint: '#FFF5E6'
+	};
+}
+
+/**
+ * Create metal colors from a hue value (0-360)
+ * Automatically generates complementary light/dark pair
+ */
+export function createMetalFromHue(
+	hue: number,
+	options?: {
+		saturation?: number;
+		lightContrast?: number;
+	}
+): LiquidMetalColors {
+	const { saturation = 0.3, lightContrast = 0.85 } = options ?? {};
+
+	return {
+		colorLight: hslToHex(hue, saturation * 0.5, 0.95),
+		colorDark: hslToHex(hue, saturation, 0.1 + (1 - lightContrast) * 0.3),
+		colorTint: hslToHex(hue, saturation * 0.2, 0.98)
+	};
+}
+
+/**
+ * Create metal colors from a brand/base color
+ * Derives light and dark variants automatically
+ */
+export function createMetalFromColor(
+	baseColor: string,
+	options?: {
+		lightAmount?: number;
+		darkAmount?: number;
+	}
+): LiquidMetalColors {
+	const { lightAmount = 0.85, darkAmount = 0.85 } = options ?? {};
+
+	return {
+		colorLight: lightenColor(baseColor, lightAmount),
+		colorDark: darkenColor(baseColor, darkAmount),
+		colorTint: lightenColor(baseColor, 0.95)
+	};
+}
+
+/**
+ * Create fully custom metal colors
+ */
+export function createCustomMetal(
+	colorLight: string,
+	colorDark: string,
+	colorTint?: string,
+	colorBack?: string
+): LiquidMetalColors {
+	return { colorLight, colorDark, colorTint, colorBack };
+}
+
+// Pre-built variant generators
+export const metalVariants = {
+	silver: createSilverMetal,
+	'silver-light': createSilverLightMetal,
+	gold: createGoldMetal,
+	bronze: createBronzeMetal,
+	purple: () => createMetalFromHue(280, { saturation: 0.5 }),
+	blue: () => createMetalFromHue(210, { saturation: 0.5 }),
+	pink: () => createMetalFromHue(330, { saturation: 0.5 }),
+	yellow: () => createMetalFromHue(55, { saturation: 0.6 }),
+	green: () => createMetalFromHue(120, { saturation: 0.5 }),
+	red: () => createMetalFromHue(0, { saturation: 0.5 }),
+	cyan: () => createMetalFromHue(180, { saturation: 0.5 }),
+	orange: () => createMetalFromHue(30, { saturation: 0.6 })
+} as const;
+
+/** Available metal variant presets */
+export type LiquidMetalVariant = keyof typeof metalVariants;
+
+/** Metal color presets - for backward compatibility */
+export const LiquidMetalPresets: Record<LiquidMetalVariant, { light: string; dark: string }> =
+	Object.fromEntries(
+		Object.entries(metalVariants).map(([key, generator]) => {
+			const colors = generator();
+			return [key, { light: colors.colorLight, dark: colors.colorDark }];
+		})
+	) as Record<LiquidMetalVariant, { light: string; dark: string }>;
 
 export interface LiquidMetalProps {
 	width?: number | string;
 	height?: number | string;
-	/** Image URL for the mask (PNG/JPEG/WebP - must have transparent background) */
-	image?: string;
+	/** Image source - URL string or local require/import (e.g., require('./image.png')) */
+	image?: string | number;
 	/** SVG string content for the mask (alternative to image) */
 	svg?: string;
 	/** Target size for SVG rasterization (default: 512) */
 	svgSize?: number;
-	/** Metal variant preset (default: "silver") */
-	variant?: LiquidMetalVariant;
-	/** Custom highlight color (overrides variant) */
+	/** Highlight/reflection color - use generator functions like createSilverMetal() */
 	colorLight?: string;
-	/** Custom shadow color (overrides variant) */
+	/** Shadow/dark color - use generator functions like createSilverMetal() */
 	colorDark?: string;
+	/** Background color (behind transparent areas) */
 	colorBack?: string;
+	/** Tint overlay color (color burn blend on highlights) */
 	colorTint?: string;
 	shape?: LiquidMetalShape;
 	/** Animation mode (default: "flow") */
@@ -279,17 +425,19 @@ async function fetchSvgFromUrl(url: string): Promise<string | null> {
 	}
 }
 
+// Default colors from silver metal (matches original paper-design shader)
+const DEFAULT_METAL = createSilverMetal();
+
 export function LiquidMetal({
-	width = '100%',
-	height = '100%',
+	width,
+	height,
 	image,
 	svg,
 	svgSize = 512,
-	variant = 'silver',
-	colorLight,
-	colorDark,
-	colorBack = '#aaaaac',
-	colorTint = '#ffffff',
+	colorLight = DEFAULT_METAL.colorLight,
+	colorDark = DEFAULT_METAL.colorDark,
+	colorBack = '#00000000',
+	colorTint = DEFAULT_METAL.colorTint ?? '#ffffff',
 	shape = 'none',
 	animationMode = 'flow',
 	pattern = 'linear',
@@ -306,15 +454,71 @@ export function LiquidMetal({
 	fit = 'contain',
 	style
 }: LiquidMetalProps) {
-	const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+	const [layoutSize, setLayoutSize] = useState({ width: 0, height: 0 });
 	const [imageAspectRatio, setImageAspectRatio] = useState(1);
+
+	// Determine if dimensions are numeric
+	const numericWidth = typeof width === 'number' ? width : undefined;
+	const numericHeight = typeof height === 'number' ? height : undefined;
+
+	// Calculate canvas size based on props and aspect ratio
+	const canvasSize = useMemo(() => {
+		// Both numeric dimensions provided - use them directly
+		if (numericWidth !== undefined && numericHeight !== undefined) {
+			return { width: numericWidth, height: numericHeight };
+		}
+
+		// Only width provided - calculate height from aspect ratio
+		if (numericWidth !== undefined && numericHeight === undefined) {
+			return {
+				width: numericWidth,
+				height: Math.round(numericWidth / imageAspectRatio)
+			};
+		}
+
+		// Only height provided - calculate width from aspect ratio
+		if (numericHeight !== undefined && numericWidth === undefined) {
+			return {
+				width: Math.round(numericHeight * imageAspectRatio),
+				height: numericHeight
+			};
+		}
+
+		// Percentage or no dimensions - use layout measurements
+		return layoutSize;
+	}, [numericWidth, numericHeight, imageAspectRatio, layoutSize]);
+
+	// Calculate the style dimensions for the container
+	const containerDimensions = useMemo(() => {
+		const dims: { width?: number | string; height?: number | string } = {};
+
+		if (numericWidth !== undefined && numericHeight !== undefined) {
+			dims.width = numericWidth;
+			dims.height = numericHeight;
+		} else if (numericWidth !== undefined) {
+			dims.width = numericWidth;
+			dims.height = Math.round(numericWidth / imageAspectRatio);
+		} else if (numericHeight !== undefined) {
+			dims.width = Math.round(numericHeight * imageAspectRatio);
+			dims.height = numericHeight;
+		} else {
+			// Fallback to percentage or default
+			dims.width = width ?? '100%';
+			dims.height = height ?? '100%';
+		}
+
+		return dims;
+	}, [numericWidth, numericHeight, width, height, imageAspectRatio]);
 	const [processedSkiaImage, setProcessedSkiaImage] = useState<ReturnType<
 		typeof Skia.Image.MakeImage
 	> | null>(null);
 	const [svgContent, setSvgContent] = useState<string | null>(null);
 
-	// Load raster image if provided (PNG/JPEG/WebP)
-	const skiaImage = useImage(image && !image.endsWith('.svg') ? image : null);
+	// Check if image is an SVG URL (only strings can be SVG URLs)
+	const isSvgUrl = typeof image === 'string' && image.endsWith('.svg');
+
+	// Load raster image if provided (PNG/JPEG/WebP or local require)
+	const skiaImage = useImage(image && !isSvgUrl ? image : null);
 
 	// Animation time
 	const time = useSharedValue(0);
@@ -325,7 +529,7 @@ export function LiquidMetal({
 
 	// Fetch SVG from URL if image is an SVG URL
 	useEffect(() => {
-		if (image?.endsWith('.svg')) {
+		if (isSvgUrl && typeof image === 'string') {
 			fetchSvgFromUrl(image).then(content => {
 				if (content) {
 					setSvgContent(content);
@@ -336,7 +540,7 @@ export function LiquidMetal({
 		} else {
 			setSvgContent(null);
 		}
-	}, [image, svg]);
+	}, [image, svg, isSvgUrl]);
 
 	// Process SVG content
 	useEffect(() => {
@@ -372,7 +576,7 @@ export function LiquidMetal({
 
 	// Process raster image when loaded
 	useEffect(() => {
-		if (skiaImage && image && !image.endsWith('.svg')) {
+		if (skiaImage && image && !isSvgUrl) {
 			const imgWidth = skiaImage.width();
 			const imgHeight = skiaImage.height();
 			setImageAspectRatio(imgWidth / imgHeight);
@@ -406,7 +610,7 @@ export function LiquidMetal({
 				createPlaceholder();
 			}
 		}
-	}, [skiaImage, image]);
+	}, [skiaImage, image, isSvgUrl]);
 
 	// Create placeholder for shape-based rendering
 	const createPlaceholder = useCallback(() => {
@@ -445,20 +649,16 @@ export function LiquidMetal({
 	const colorBackParsed = useMemo(() => parseColor(colorBack), [colorBack]);
 	const colorTintParsed = useMemo(() => parseColor(colorTint), [colorTint]);
 
-	// Get metal colors from variant preset, with optional custom overrides
+	// Parse metal colors (defaults are set in function parameters from DEFAULT_METAL)
 	const colorLightParsed = useMemo(() => {
-		const preset = LiquidMetalPresets[variant];
-		const color = colorLight ?? preset.light;
-		const [r, g, b] = parseColor(color);
+		const [r, g, b] = parseColor(colorLight);
 		return [r, g, b] as [number, number, number];
-	}, [variant, colorLight]);
+	}, [colorLight]);
 
 	const colorDarkParsed = useMemo(() => {
-		const preset = LiquidMetalPresets[variant];
-		const color = colorDark ?? preset.dark;
-		const [r, g, b] = parseColor(color);
+		const [r, g, b] = parseColor(colorDark);
 		return [r, g, b] as [number, number, number];
-	}, [variant, colorDark]);
+	}, [colorDark]);
 
 	const fitMode = fit === 'contain' ? 1 : fit === 'cover' ? 2 : 0;
 	const isImage = image || svg ? 1.0 : 0.0;
@@ -513,19 +713,19 @@ export function LiquidMetal({
 
 	const handleLayout = useCallback((event: any) => {
 		const { width: w, height: h } = event.nativeEvent.layout;
-		setCanvasSize({ width: w, height: h });
+		setLayoutSize({ width: w, height: h });
 	}, []);
 
 	if (!shaderEffect) {
 		return (
-			<View style={[styles.container, style, { width, height }]}>
+			<View style={[styles.container, style, containerDimensions]}>
 				<View style={[styles.fallback, { backgroundColor: colorBack }]} />
 			</View>
 		);
 	}
 
 	return (
-		<View style={[styles.container, style, { width, height }]} onLayout={handleLayout}>
+		<View style={[styles.container, style, containerDimensions]} onLayout={handleLayout}>
 			{canvasSize.width > 0 && canvasSize.height > 0 && processedSkiaImage && (
 				<Canvas
 					style={{

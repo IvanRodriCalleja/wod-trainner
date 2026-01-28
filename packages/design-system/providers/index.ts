@@ -1,1 +1,1 @@
-export * from './DesignSystemProvider';
+export * from './app-theme-context';

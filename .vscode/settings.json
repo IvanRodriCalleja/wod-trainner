@@ -50,6 +50,7 @@
     "ListHeaderComponentClassName"
   ],
   "tailwindCSS.classFunctions": ["useResolveClassNames"],
+  "jest.autoRun": "off",
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
     "*.jsx": "$(capture).js, $(capture).spec.jsx, $(capture).test.jsx",
