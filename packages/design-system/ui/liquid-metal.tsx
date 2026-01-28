@@ -156,8 +156,6 @@ export interface LiquidMetalProps {
 	speed?: number;
 	scale?: number;
 	fit?: 'contain' | 'cover' | 'none';
-	/** When true, lighting follows the stripe angle instead of fixed Y-axis (default: false) */
-	lightFollowsAngle?: boolean;
 	style?: object;
 }
 
@@ -598,7 +596,6 @@ export function LiquidMetal({
 	speed = 1,
 	scale = 0.6,
 	fit = 'contain',
-	lightFollowsAngle = false,
 	style
 }: LiquidMetalProps) {
 	// Rasterize and process text once - returns both image and dimensions
@@ -855,8 +852,7 @@ export function LiquidMetal({
 			u_fit: fitMode,
 			u_animationMode: LiquidMetalAnimationModes[animationMode],
 			u_pattern: LiquidMetalPatterns[pattern],
-			u_material: LiquidMetalMaterials[material],
-			u_lightFollowsAngle: lightFollowsAngle ? 1.0 : 0.0
+			u_material: LiquidMetalMaterials[material]
 		};
 	}, [
 		canvasSize,
@@ -879,8 +875,7 @@ export function LiquidMetal({
 		fitMode,
 		animationMode,
 		pattern,
-		material,
-		lightFollowsAngle
+		material
 	]);
 
 	const handleLayout = useCallback((event: any) => {

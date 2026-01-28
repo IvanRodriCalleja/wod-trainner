@@ -13,7 +13,7 @@ import { useAppTheme } from '../providers';
 const StyledIonicons = withUniwind(Ionicons);
 
 export const ThemeToggle: FC = () => {
-	const { toggleTheme, isLight } = useAppTheme();
+	const { toggleTheme } = useAppTheme();
 
 	const isLGAvailable = isLiquidGlassAvailable();
 
@@ -26,15 +26,9 @@ export const ThemeToggle: FC = () => {
 				toggleTheme();
 			}}
 			className={cn('p-3', isLGAvailable && 'px-2.5 py-2')}>
-			{isLight ? (
-				<Animated.View key="moon" entering={ZoomIn} exiting={FadeOut}>
-					<StyledIonicons name="moon" size={20} className="text-black" />
-				</Animated.View>
-			) : (
-				<Animated.View key="sun" entering={ZoomIn} exiting={FadeOut}>
-					<StyledIonicons name="sunny" size={20} className="text-white" />
-				</Animated.View>
-			)}
+			<Animated.View key="moon" entering={ZoomIn} exiting={FadeOut}>
+				<StyledIonicons name="moon" size={20} className="text-black dark:text-white" />
+			</Animated.View>
 		</Pressable>
 	);
 };

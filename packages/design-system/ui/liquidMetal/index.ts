@@ -1,14 +1,15 @@
-export { LiquidMetalText } from './LiquidMetalText';
+export { LiquidMetalText, default as LiquidMetalTextDefault } from './LiquidMetalText';
 export type {
+	AnimationMode,
 	FontStyle,
 	FontWeight,
-	LiquidMetalAnimationMode,
-	LiquidMetalMaterial,
-	LiquidMetalPattern,
 	LiquidMetalTextProps,
-	LiquidMetalVariant
+	LiquidMetalTextVariant,
+	Material,
+	Pattern
 } from './LiquidMetalText';
-export { LiquidMetalPresets } from './LiquidMetalText';
+
+export { liquidMetalTextShader } from './textShader';
 
 export {
 	liquidMetalShader,
@@ -17,6 +18,11 @@ export {
 	LiquidMetalPatterns,
 	LiquidMetalShapes
 } from './shaders';
-export type { LiquidMetalShape } from './shaders';
+export type {
+	LiquidMetalAnimationMode,
+	LiquidMetalMaterial,
+	LiquidMetalPattern,
+	LiquidMetalShape
+} from './shaders';
 
 export { processImageForLiquidMetal, createPlaceholderImageData } from './poissonSolver';
