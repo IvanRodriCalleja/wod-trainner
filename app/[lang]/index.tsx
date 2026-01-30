@@ -1,23 +1,38 @@
-import { PropsWithChildren, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import React, { FC, PropsWithChildren } from 'react';
+import {
+	Pressable,
+	Text as RNText,
+	type TextProps as RNTextProps,
+	ScrollView,
+	ScrollViewProps,
+	View
+} from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
-import { Card } from 'heroui-native';
+import Feather from '@expo/vector-icons/Feather';
+import { useHeaderHeight } from '@react-navigation/elements';
+import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { Card, Chip, cn } from 'heroui-native';
+import Animated, { AnimatedProps, Easing, FadeInDown } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { withUniwind } from 'uniwind';
 
-import LiquidMetal, {
-	createMistMetal,
-	createPearlMetal,
-	createSilverMetal
-} from '@wod-trainer/design-system/ui/LiquidMetal';
-import { Div, Span } from '@wod-trainer/strict-dom';
+import { useAppTheme } from '@wod-trainer/design-system/providers';
 
 import { WorkoutType } from 'modules/workout/domain/WorkoutType';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+const StyledFeather = withUniwind(Feather);
 
 type TrainingTypeOption = {
 	type: WorkoutType;
 	label: string;
 	description: string;
-	icon: keyof typeof Ionicons.glyphMap;
+	icon: keyof typeof Feather.glyphMap;
+	gradientLight: string;
+	gradientDark: string;
+	count: number;
 };
 
 const trainingTypes: TrainingTypeOption[] = [
@@ -25,96 +40,148 @@ const trainingTypes: TrainingTypeOption[] = [
 		type: WorkoutType.EMOM,
 		label: 'EMOM',
 		description: 'Every Minute On the Minute',
-		icon: 'timer-outline'
+		icon: 'bar-chart-2',
+		gradientLight: 'bg-gradient-to-br from-transparent via-indigo-400/10 to-blue-500/20',
+		gradientDark: 'bg-gradient-to-br from-blue-950/50 via-indigo-900/40 to-cyan-800/30',
+		count: 10
 	},
 	{
 		type: WorkoutType.FORTIME,
 		label: 'For Time',
 		description: 'Complete as fast as possible',
-		icon: 'stopwatch-outline'
+		icon: 'zap',
+		gradientLight: 'bg-gradient-to-br from-transparent via-purple-400/15 to-fuchsia-400/25',
+		gradientDark: 'bg-gradient-to-br from-violet-950/60 via-purple-900/50 to-fuchsia-800/40',
+		count: 5
 	},
 	{
 		type: WorkoutType.AMRAP,
 		label: 'AMRAP',
 		description: 'As Many Reps As Possible',
-		icon: 'repeat-outline'
+		icon: 'refresh-cw',
+		gradientLight: 'bg-gradient-to-br from-transparent via-teal-400/10 to-emerald-400/20',
+		gradientDark: 'bg-gradient-to-br from-emerald-950/50 via-teal-900/40 to-cyan-800/30',
+		count: 8
 	},
 	{
 		type: WorkoutType.TABATA,
 		label: 'Tabata',
 		description: '20s work / 10s rest intervals',
-		icon: 'pulse-outline'
+		icon: 'layers',
+		gradientLight: 'bg-gradient-to-br from-transparent via-rose-400/10 to-pink-400/20',
+		gradientDark: 'bg-gradient-to-br from-rose-950/50 via-pink-900/40 to-red-800/30',
+		count: 3
 	}
 ];
 
-const HomeScreen = () => {
-	const [selectedType, setSelectedType] = useState<WorkoutType | null>(null);
+const HomeCard: FC<TrainingTypeOption & { index: number }> = ({
+	description,
+	icon,
+	label,
+	type,
+	gradientLight,
+	gradientDark,
+	index,
+	count
+}) => {
+	const router = useRouter();
+
+	const { isDark } = useAppTheme();
 
 	return (
-		<View className="flex-1 p-4">
-			<View className="flex-row flex-wrap">
-				{trainingTypes.map(training => (
-					<Pressable
-						key={training.type}
-						className="aspect-square w-1/2 p-2"
-						onPress={() => setSelectedType(training.type)}>
-						<LiquidMetalCard>
-							<Div className="flex h-full flex-col p-4">
-								<Div className="flex-1 items-center justify-center">
-									<Ionicons name={training.icon} size={48} color={'#f59e0b'} />
-								</Div>
-								<Span className="text-foreground text-center">{training.label}</Span>
-							</Div>
-						</LiquidMetalCard>
-						{/*<Card
-							variant={selectedType === training.type ? 'default' : 'secondary'}
-							className={`${selectedType === training.type ? 'border-accent border-2' : ''}`}>
-							<Card.Body className="items-center gap-2 p-4">
-								<Ionicons
-									name={training.icon}
-									size={32}
-									color={selectedType === training.type ? '#f59e0b' : '#888'}
-								/>
-								<Card.Title className="text-center">{training.label}</Card.Title>
-								<Card.Description className="text-center text-xs">
-									{training.description}
-								</Card.Description>
-							</Card.Body>
-						</Card>*/}
-					</Pressable>
+		<AnimatedPressable
+			entering={FadeInDown.duration(300)
+				.delay(index * 100)
+				.easing(Easing.out(Easing.ease))}
+			onPress={() => router.push(`/${type.toLowerCase()}`)}>
+			<Card
+				className={cn(
+					'overflow-hidden border border-zinc-200 p-0',
+					isDark && 'border-zinc-900'
+				)}>
+				<View
+					className={cn(
+						'absolute inset-0',
+						isDark ? gradientDark : gradientLight
+					)}
+				/>
+				<View className="gap-4">
+					<Card.Header className="p-3">
+						<Chip size="sm" className="bg-background/25">
+							<StyledFeather name={icon} size={14} className="text-foreground/85" />
+							<Chip.Label className="text-foreground/85">{count} saved</Chip.Label>
+						</Chip>
+					</Card.Header>
+					<Card.Body className="h-16" />
+					<Card.Footer className="flex-row items-end gap-4 px-3 pb-3">
+						<View className="flex-1">
+							<Card.Title className="text-foreground/85 text-2xl">{label}</Card.Title>
+							<Card.Description className="text-foreground/65 pl-0.5">
+								{description}
+							</Card.Description>
+						</View>
+						<View className="bg-background/25 size-9 items-center justify-center rounded-full">
+							<StyledFeather name="arrow-up-right" size={20} className="text-foreground" />
+						</View>
+					</Card.Footer>
+				</View>
+			</Card>
+		</AnimatedPressable>
+	);
+};
+
+export default function App() {
+	const { isDark } = useAppTheme();
+
+	return (
+		<ScreenScrollView>
+			<View className="my-4 items-center justify-center">
+				<AppText className="text-muted text-base">v1.0.0-beta.12</AppText>
+			</View>
+			<View className="gap-6">
+				{trainingTypes.map((trainingType, index) => (
+					<HomeCard key={trainingType.label} {...trainingType} index={index} />
 				))}
 			</View>
-		</View>
+			<StatusBar style={isDark ? 'light' : 'dark'} />
+		</ScreenScrollView>
 	);
-};
+}
 
-const LiquidMetalCard = ({ children }: PropsWithChildren) => {
+export const AppText = React.forwardRef<RNText, RNTextProps>((props, ref) => {
+	const { className, ...restProps } = props;
+
+	return <RNText ref={ref} className={cn('font-normal', className)} {...restProps} />;
+});
+
+AppText.displayName = 'AppText';
+
+const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
+
+interface Props extends AnimatedProps<ScrollViewProps> {
+	className?: string;
+	contentContainerClassName?: string;
+}
+
+export const ScreenScrollView: FC<PropsWithChildren<Props>> = ({
+	children,
+	className,
+	contentContainerClassName,
+	...props
+}) => {
+	const insets = useSafeAreaInsets();
+	const headerHeight = useHeaderHeight();
 	return (
-		<Div className="relative overflow-hidden rounded-[12] p-[3]">
-			<Div className="absolute inset-0">
-				<Div className="mt-[-50%] ml-[-50%] h-full w-full">
-					<LiquidMetal
-						width="200%"
-						height="200%"
-						material="chrome"
-						repetition={3}
-						{...createMistMetal()}
-						shape="square"
-						distortion={0.15}
-						scale={1}
-						shiftBlue={0.5}
-						shiftRed={0.5}
-						contour={0.6}
-						softness={0.2}
-						angle={70}
-						fit="contain"
-					/>
-				</Div>
-			</Div>
-
-			<Div className="bg-background relative z-10 h-full w-full rounded-[9]">{children}</Div>
-		</Div>
+		<AnimatedScrollView
+			className={cn('bg-background', className)}
+			contentContainerClassName={cn('px-5', contentContainerClassName)}
+			contentContainerStyle={{
+				paddingTop: headerHeight,
+				paddingBottom: insets.bottom + 32
+			}}
+			showsVerticalScrollIndicator={false}
+			{...props}>
+			{children}
+		</AnimatedScrollView>
 	);
 };
-
-export default HomeScreen;
