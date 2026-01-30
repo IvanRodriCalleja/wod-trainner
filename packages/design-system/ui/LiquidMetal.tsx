@@ -140,6 +140,91 @@ export function createSilverLightMetal(): LiquidMetalColors {
 }
 
 /**
+ * Create light chrome metal colors
+ * Bright, reflective liquid metal with lighter darks
+ * Still maintains liquid metal contrast but with a lighter feel
+ */
+export function createLightChromeMetal(): LiquidMetalColors {
+	return {
+		colorLight: '#FFFFFF', // Pure white highlights
+		colorDark: '#4A5568', // Slate gray (lighter than black, still has depth)
+		colorTint: '#F0F4FF' // Slight cool tint
+	};
+}
+
+/**
+ * Create pearl metal colors
+ * Soft, iridescent appearance with subtle warmth
+ */
+export function createPearlMetal(): LiquidMetalColors {
+	return {
+		colorLight: '#FFFEF5', // Warm white
+		colorDark: '#8B8B9A', // Soft purple-gray
+		colorTint: '#FFF8F0' // Warm tint
+	};
+}
+
+/**
+ * Create platinum metal colors
+ * Cool, bright metallic with medium contrast
+ */
+export function createPlatinumMetal(): LiquidMetalColors {
+	return {
+		colorLight: '#F8FAFF', // Cool bright white
+		colorDark: '#5A6070', // Cool medium gray
+		colorTint: '#E8F0FF' // Cool blue tint
+	};
+}
+
+/**
+ * Create frost metal colors
+ * Very light, icy appearance with minimal contrast
+ */
+export function createFrostMetal(): LiquidMetalColors {
+	return {
+		colorLight: '#FFFFFF', // Pure white
+		colorDark: '#A0AEC0', // Light cool gray
+		colorTint: '#F0F8FF' // Ice blue tint
+	};
+}
+
+/**
+ * Create cloud metal colors
+ * Ultra soft, dreamy appearance
+ */
+export function createCloudMetal(): LiquidMetalColors {
+	return {
+		colorLight: '#FFFFFF', // Pure white
+		colorDark: '#B8C4D0', // Very light gray-blue
+		colorTint: '#FFFFFF'
+	};
+}
+
+/**
+ * Create mist metal colors
+ * Extremely subtle, almost white-on-white
+ */
+export function createMistMetal(): LiquidMetalColors {
+	return {
+		colorLight: '#FFFFFF', // Pure white
+		colorDark: '#D0D5DD', // Very light gray
+		colorTint: '#FAFAFA'
+	};
+}
+
+/**
+ * Create glass metal colors
+ * Transparent feel with subtle reflections
+ */
+export function createGlassMetal(): LiquidMetalColors {
+	return {
+		colorLight: '#FFFFFF', // Pure white
+		colorDark: '#C4CCD8', // Soft gray
+		colorTint: '#F5F7FA'
+	};
+}
+
+/**
  * Create gold metal colors
  * Warm golden tones
  */
@@ -218,6 +303,13 @@ export function createCustomMetal(
 export const metalVariants = {
 	silver: createSilverMetal,
 	'silver-light': createSilverLightMetal,
+	'light-chrome': createLightChromeMetal,
+	pearl: createPearlMetal,
+	platinum: createPlatinumMetal,
+	frost: createFrostMetal,
+	cloud: createCloudMetal,
+	mist: createMistMetal,
+	glass: createGlassMetal,
 	gold: createGoldMetal,
 	bronze: createBronzeMetal,
 	purple: () => createMetalFromHue(280, { saturation: 0.5 }),

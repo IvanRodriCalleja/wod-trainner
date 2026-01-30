@@ -330,6 +330,18 @@ half4 main(float2 coord) {
       opacity = 1.0 - smoothstep(0.9 - 2.0 * fw, 0.9, edge);
       cycleWidth *= 1.6;
     } else if (u_shape < 4.0) {
+      // square
+      shapeUV *= 1.42;
+      shapeUV += 0.5;
+      float2 mask = min(shapeUV, 1.0 - shapeUV);
+      float2 pixel_thickness = float2(0.15);
+      float maskX = smoothstep(0.0, pixel_thickness.x, mask.x);
+      float maskY = smoothstep(0.0, pixel_thickness.y, mask.y);
+      maskX = pow(maskX, 0.25);
+      maskY = pow(maskY, 0.25);
+      edge = clamp(1.0 - maskX * maskY, 0.0, 1.0);
+      opacity = 1.0 - smoothstep(0.9 - 2.0 * fw, 0.9, edge);
+    } else if (u_shape < 5.0) {
       // diamond
       shapeUV = rotate(shapeUV, 0.25 * PI);
       shapeUV *= 1.42;
@@ -342,7 +354,7 @@ half4 main(float2 coord) {
       maskY = pow(maskY, 0.25);
       edge = clamp(1.0 - maskX * maskY, 0.0, 1.0);
       opacity = 1.0 - smoothstep(0.9 - 2.0 * fw, 0.9, edge);
-    } else if (u_shape < 5.0) {
+    } else if (u_shape < 6.0) {
       // metaballs
       shapeUV *= 1.3;
       edge = 0.0;
@@ -359,34 +371,34 @@ half4 main(float2 coord) {
       edge = 1.0 - smoothstep(0.65, 0.9, edge);
       edge = pow(edge, 4.0);
       opacity = 1.0 - smoothstep(0.9 - 2.0 * fw, 0.9, edge);
-    } else if (u_shape < 6.0) {
+    } else if (u_shape < 7.0) {
       // heart
       float d = heartShape(shapeUV);
       edge = smoothstep(-0.01, 0.15, d);
       edge = pow(edge, 2.0);
       opacity = 1.0 - smoothstep(-0.01, 0.02, d);
-    } else if (u_shape < 7.0) {
+    } else if (u_shape < 8.0) {
       // star
       shapeUV *= 1.8;
       float d = starShape(shapeUV, 5.0);
       edge = smoothstep(0.15, 0.35, d);
       edge = pow(edge, 2.0);
       opacity = 1.0 - smoothstep(0.28, 0.32, d);
-    } else if (u_shape < 8.0) {
+    } else if (u_shape < 9.0) {
       // hexagon
       shapeUV *= 1.5;
       float d = hexagonShape(shapeUV);
       edge = smoothstep(0.2, 0.4, d);
       edge = pow(edge, 2.0);
       opacity = 1.0 - smoothstep(0.35, 0.38, d);
-    } else if (u_shape < 9.0) {
+    } else if (u_shape < 10.0) {
       // pill
       shapeUV *= 1.2;
       float d = pillShape(shapeUV, 0.12);
       edge = smoothstep(-0.05, 0.1, d);
       edge = pow(edge, 2.0);
       opacity = 1.0 - smoothstep(-0.01, 0.02, d);
-    } else if (u_shape < 10.0) {
+    } else if (u_shape < 11.0) {
       // wave
       shapeUV *= 1.0;
       float d = waveShape(shapeUV, t);
@@ -607,14 +619,15 @@ export const LiquidMetalShapes = {
 	none: 0,
 	circle: 1,
 	daisy: 2,
-	diamond: 3,
-	metaballs: 4,
-	heart: 5,
-	star: 6,
-	hexagon: 7,
-	pill: 8,
-	wave: 9,
-	blob: 10
+	square: 3,
+	diamond: 4,
+	metaballs: 5,
+	heart: 6,
+	star: 7,
+	hexagon: 8,
+	pill: 9,
+	wave: 10,
+	blob: 11
 } as const;
 
 export type LiquidMetalShape = keyof typeof LiquidMetalShapes;

@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { Platform, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Logo from 'assets/images/arm-muscle.png';
 import { isLiquidGlassAvailable } from 'expo-glass-effect';
@@ -17,6 +18,7 @@ import { Span } from '@wod-trainer/strict-dom';
 const LangLayout = () => {
 	const { isDark } = useAppTheme();
 	const [themeColorForeground, themeColorBackground] = useThemeColor(['foreground', 'background']);
+	const insets = useSafeAreaInsets();
 
 	const _renderTitle = () => {
 		return (
@@ -66,7 +68,8 @@ const LangLayout = () => {
 				gestureDirection: 'horizontal',
 				fullScreenGestureEnabled: isLiquidGlassAvailable() ? false : true,
 				contentStyle: {
-					backgroundColor: themeColorBackground
+					backgroundColor: themeColorBackground,
+					paddingTop: insets.top + 56
 				}
 			}}>
 			<Stack.Screen
