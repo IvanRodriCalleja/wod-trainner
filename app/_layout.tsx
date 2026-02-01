@@ -10,7 +10,7 @@ import { I18nProvider } from '@wod-trainer/internationalization/ui/I18nProvider'
 
 import '../global.css';
 
-Uniwind.setTheme('dark');
+Uniwind.setTheme('system');
 
 const RootLayout = () => {
 	const { lang, locales } = useLocales();
