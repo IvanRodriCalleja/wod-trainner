@@ -2,7 +2,7 @@ import { type FC } from 'react';
 import { Pressable, View } from 'react-native';
 
 import Feather from '@expo/vector-icons/Feather';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Card, cn } from 'heroui-native';
 import Animated, { Easing, FadeInDown } from 'react-native-reanimated';
 import { withUniwind } from 'uniwind';
@@ -82,6 +82,7 @@ const HomeCard: FC<TrainingTypeOption & { index: number }> = ({
 	index
 }) => {
 	const router = useRouter();
+	const { lang } = useLocalSearchParams<{ lang: string }>();
 
 	const { isDark } = useAppTheme();
 
@@ -90,8 +91,8 @@ const HomeCard: FC<TrainingTypeOption & { index: number }> = ({
 			entering={FadeInDown.duration(300)
 				.delay(index * 75)
 				.easing(Easing.out(Easing.ease))}
-			//TODO: Concatenate language
-			onPress={() => router.push(`/es${href}`)}>
+			// TODO: Do it automatically
+			onPress={() => router.push(`/${lang}${href}`)}>
 			<Card className={cn('overflow-hidden border border-zinc-200 p-0 dark:border-zinc-900')}>
 				<View className={cn('absolute inset-0', isDark ? gradientDark : gradientLight)} />
 				<View className="flex-row items-center gap-4 px-4 py-5">
@@ -99,8 +100,8 @@ const HomeCard: FC<TrainingTypeOption & { index: number }> = ({
 						<StyledFeather name={icon} size={22} className="text-foreground/85" />
 					</View>
 					<View className="flex-1 gap-0.5">
-						<Card.Title className="text-foreground/85 text-lg">{label}</Card.Title>
-						<Card.Description className="text-foreground/55 text-xs">
+						<Card.Title className="text-foreground/85 text-lg font-extrabold">{label}</Card.Title>
+						<Card.Description className="text-foreground/65 text-xs">
 							{description}
 						</Card.Description>
 					</View>
