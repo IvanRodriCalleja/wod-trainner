@@ -1,4 +1,3 @@
-import { type FC } from 'react';
 import { Platform, Pressable } from 'react-native';
 
 import * as Haptics from 'expo-haptics';
@@ -12,7 +11,7 @@ import { useAppTheme } from '../providers';
 
 const StyledIonicons = withUniwind(Ionicons);
 
-export const ThemeToggle: FC = () => {
+export const ThemeToggle = () => {
 	const { toggleTheme } = useAppTheme();
 
 	const isLGAvailable = isLiquidGlassAvailable();
