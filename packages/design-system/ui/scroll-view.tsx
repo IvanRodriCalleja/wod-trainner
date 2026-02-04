@@ -1,10 +1,11 @@
 import { type FC, type PropsWithChildren } from 'react';
 import { ScrollView, type ScrollViewProps } from 'react-native';
 
-import { useHeaderHeight } from '@react-navigation/elements';
 import { cn } from 'heroui-native';
 import Animated, { type AnimatedProps } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { useHeaderHeight } from '../hooks/useHeaderHeight';
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 

@@ -3,7 +3,6 @@ import { Platform } from 'react-native';
 import { isLiquidGlassAvailable } from 'expo-glass-effect';
 import { Stack } from 'expo-router';
 import { useThemeColor } from 'heroui-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAppTheme } from '@wod-trainer/design-system/providers';
 import { ThemeToggle } from '@wod-trainer/design-system/ui/theme-toggle';
@@ -11,7 +10,6 @@ import { ThemeToggle } from '@wod-trainer/design-system/ui/theme-toggle';
 const LangLayout = () => {
 	const { isDark } = useAppTheme();
 	const [themeColorForeground, themeColorBackground] = useThemeColor(['foreground', 'background']);
-	const insets = useSafeAreaInsets();
 
 	return (
 		<Stack
@@ -32,11 +30,11 @@ const LangLayout = () => {
 				headerRight: ThemeToggle,
 				headerBackButtonDisplayMode: 'generic',
 				gestureEnabled: true,
+				animation: 'slide_from_right',
 				gestureDirection: 'horizontal',
 				fullScreenGestureEnabled: isLiquidGlassAvailable() ? false : true,
 				contentStyle: {
-					backgroundColor: themeColorBackground,
-					paddingTop: insets.top + 56
+					backgroundColor: themeColorBackground
 				}
 			}}>
 			<Stack.Screen
