@@ -49,11 +49,11 @@ export const AppThemeProvider = ({ children }: PropsWithChildren) => {
 
 	const { loaded, error } = useFont();
 
-	if (!loaded && !error) {
-		return null;
-	}
-
-	return <AppThemeContext value={value}>{children}</AppThemeContext>;
+	return (
+		<AppThemeContext.Provider value={value}>
+			{!loaded && !error ? null : children}
+		</AppThemeContext.Provider>
+	);
 };
 
 export const useAppTheme = () => {
