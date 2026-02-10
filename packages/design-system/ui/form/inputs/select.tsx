@@ -21,6 +21,7 @@ import Animated, {
 	useSharedValue,
 	withTiming
 } from 'react-native-reanimated';
+import { type VariantProps, tv } from 'tailwind-variants';
 import { withUniwind } from 'uniwind';
 
 import { Option } from '../../../domain/Option';
@@ -45,14 +46,54 @@ const Overlay = ({ children, ...props }: PropsWithChildren<SelectOverlayProps>) 
 const StyledFeather = withUniwind(Feather);
 const StyleAnimatedView = withUniwind(Animated.View);
 
+const selectTriggerVariants = tv({
+	slots: {
+		container: 'bg-surface w-full justify-center shadow-md shadow-black/5',
+		border: 'border-accent pointer-events-none absolute -inset-1 border-[2.5px]',
+		icon: 'absolute',
+		text: 'text-foreground'
+	},
+	variants: {
+		size: {
+			sm: {
+				container: 'h-9 px-3 rounded-lg',
+				border: 'rounded-xl',
+				icon: 'right-3',
+				text: 'text-sm'
+			},
+			md: {
+				container: 'h-12 px-4 rounded-lg',
+				border: 'rounded-xl',
+				icon: 'right-4',
+				text: 'text-base'
+			},
+			lg: {
+				container: 'h-14 px-5 rounded-lg',
+				border: 'rounded-xl',
+				icon: 'right-5',
+				text: 'text-base'
+			}
+		}
+	},
+	defaultVariants: {
+		size: 'md'
+	}
+});
+
+const iconSizeMap = { sm: 14, md: 16, lg: 18, xl: 20 } as const;
+
+export type SelectSize = VariantProps<typeof selectTriggerVariants>['size'];
+
 type AnimatedTriggerProps = {
 	placeholder: string;
 	options: Option[];
+	size?: SelectSize;
 };
 
-const AnimatedTrigger = ({ placeholder, options }: AnimatedTriggerProps) => {
+const AnimatedTrigger = ({ placeholder, options, size = 'md' }: AnimatedTriggerProps) => {
 	const { isOpen } = useSelect();
 	const animatedValue = useSharedValue(isOpen ? 1 : 0);
+	const { container, border, icon, text } = selectTriggerVariants({ size });
 
 	useEffect(() => {
 		animatedValue.value = withTiming(isOpen ? 1 : 0, {
@@ -76,49 +117,26 @@ const AnimatedTrigger = ({ placeholder, options }: AnimatedTriggerProps) => {
 	});
 
 	return (
-		<View
-			className="bg-surface h-[64px] w-full justify-center rounded-xl px-6 shadow-md shadow-black/5"
-			style={styles.borderCurve}>
-			<StyleAnimatedView
-				style={[rContainerStyle, styles.borderCurve]}
-				className="border-accent pointer-events-none absolute -inset-1 rounded-2xl border-[2.5px]"
-			/>
-			<Value placeholder={placeholder} options={options} />
-			<StyleAnimatedView style={rChevronStyle} className="absolute right-6">
-				<StyledFeather name="chevron-down" size={18} className="text-muted" />
+		<View className={container()} style={styles.borderCurve}>
+			<StyleAnimatedView style={[rContainerStyle, styles.borderCurve]} className={border()} />
+			<Value placeholder={placeholder} options={options} className={text()} />
+			<StyleAnimatedView style={rChevronStyle} className={icon()}>
+				<StyledFeather name="chevron-down" size={iconSizeMap[size!]} className="text-muted" />
 			</StyleAnimatedView>
 		</View>
 	);
 };
 
-type ValueProps = SelectValueProps & { options: Option[] };
+type ValueProps = SelectValueProps & { options: Option[]; className?: string };
 
-const Value = ({ asChild, placeholder, options, ...props }: ValueProps) => {
+const Value = ({ placeholder, options, className }: ValueProps) => {
 	const { value } = useSelect();
 
 	const resolvedValue = value instanceof Object ? value.value : value;
 
 	const displayValue = options.find(option => option.value === resolvedValue)?.label;
-	return <AppText className="text-foreground text-base">{displayValue ?? placeholder}</AppText>;
+	return <AppText className={className}>{displayValue ?? placeholder}</AppText>;
 };
-
-/*
-
-const Value = React.forwardRef<ValueRef, ValueProps>(
-  ({ asChild, placeholder, ...props }, ref) => {
-    const { value } = useRootContext();
-
-    const Component = asChild ? Slot.Text : Text;
-
-    return (
-      <Component ref={ref} {...props}>
-        {value?.label ?? placeholder}
-      </Component>
-    );
-  }
-);
-
-*/
 
 const SheetRoot = ({
 	children,

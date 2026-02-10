@@ -3,7 +3,7 @@ import { Path, useController, useFormContext } from 'react-hook-form';
 
 import { Option } from '../../../domain/Option';
 import { AppText } from '../../text';
-import { Select } from '../inputs/select';
+import { Select, SelectSize } from '../inputs/select';
 
 type FieldSelectProps<T> = {
 	name: Path<T>;
@@ -11,6 +11,7 @@ type FieldSelectProps<T> = {
 	label: string;
 	description?: string;
 	placeholder?: string;
+	size?: SelectSize;
 };
 
 export const FieldSelect = <T extends object>({
@@ -18,7 +19,8 @@ export const FieldSelect = <T extends object>({
 	options,
 	label,
 	description,
-	placeholder = 'Select an option'
+	placeholder = 'Select an option',
+	size = 'md'
 }: FieldSelectProps<T>) => {
 	const { control } = useFormContext<T>();
 	const { field } = useController({ control, name });
@@ -32,7 +34,7 @@ export const FieldSelect = <T extends object>({
 				value={field.value}
 				onValueChange={option => field.onChange(option?.value)}>
 				<Select.Trigger>
-					<Select.AnimatedTrigger placeholder={placeholder} options={options} />
+					<Select.AnimatedTrigger placeholder={placeholder} options={options} size={size} />
 				</Select.Trigger>
 				<Select.Portal>
 					<Select.Overlay />
@@ -44,7 +46,7 @@ export const FieldSelect = <T extends object>({
 									value={value as string}
 									label={label}
 									className="px-3 py-5">
-									<AppText className="text-muted text-sm font-medium">{label}</AppText>
+									<AppText className="åtext-sm font-medium">{label}</AppText>
 									<Select.ItemIndicator />
 								</Select.Item>
 							))}

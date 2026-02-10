@@ -46,8 +46,7 @@ const LangLayout = () => {
 			<Stack.Screen
 				name="timer/emom"
 				options={{
-					headerTitle: 'EMOM',
-					headerBackVisible: true
+					headerShown: false
 				}}
 			/>
 		</Stack>

@@ -7186,6 +7186,16 @@ react-native-keyboard-controller@^1.20.7:
   dependencies:
     react-native-is-edge-to-edge "^1.2.1"
 
+react-native-mmkv@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/react-native-mmkv/-/react-native-mmkv-4.1.2.tgz#fb337930ec50d509392832c649b578a00c0d008e"
+  integrity sha512-6LHb2DQBXuo96Aues13EugmlWw/HAYuh3KoJoQNrC4JsBwn3J3KiRYAg2mCm5Je0VYq2YsmbgZG7XJwX/WFYZA==
+
+react-native-nitro-modules@^0.33.7:
+  version "0.33.7"
+  resolved "https://registry.yarnpkg.com/react-native-nitro-modules/-/react-native-nitro-modules-0.33.7.tgz#eb8104cc19e4242ab325666af24ea6ffc8b1539e"
+  integrity sha512-WepMobWe4j1Ae5GQ5RxYGBdBpJBwzP6zaOxJ7r6nhbY5iyl01DL3Gsh4gk8edzNFRuAh1rvXDAHIipq8SahxeQ==
+
 react-native-reanimated@~4.1.1:
   version "4.1.6"
   resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-4.1.6.tgz#9d3d06416eaf48ab25594611185f66b34e404291"
