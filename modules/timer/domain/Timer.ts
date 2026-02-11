@@ -63,7 +63,7 @@ const createGoFrame = (): TimerFrame =>
 		progress: 0
 	});
 
-const createPreWorkoutFrames = (config: TimerConfig): TimerFrame[] => [
+export const createPreWorkoutFrames = (config: TimerConfig): TimerFrame[] => [
 	...(config.showPlaceholder ? [createPlaceholderFrame()] : []),
 	...createCountdownFrames(config.countdownDuration),
 	...(config.showGoFrame ? [createGoFrame()] : [])

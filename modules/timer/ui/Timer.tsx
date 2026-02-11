@@ -1,7 +1,7 @@
 import { Div } from '@wod-trainer/strict-dom';
 
+import { TimerFrame } from '../domain/TimerFrame';
 import { TimerState } from '../domain/TimerState';
-import { TrainingTimer } from '../domain/TrainingTimer';
 import { useTimerNew } from '../hooks/useTimerNew';
 import { CircularProgress } from './timer/Circle';
 import { PauseOverlay } from './timer/PauseOverlay';
@@ -12,11 +12,13 @@ const bgColorClassName = 'bg-amber-500';
 const textColorClassName = 'text-amber-500';
 
 type TimerProps = {
-	trainingTimer: TrainingTimer;
+	initialFrame: TimerFrame;
+	maxFrames: number;
+	onNextFrame: (frameTickIndex: number) => TimerFrame;
 };
 
-export const Timer = ({ trainingTimer }: TimerProps) => {
-	const { timerState, frame, toggleTimer } = useTimerNew({ trainingTimer });
+export const Timer = ({ initialFrame, maxFrames, onNextFrame }: TimerProps) => {
+	const { timerState, frame, toggleTimer } = useTimerNew({ initialFrame, maxFrames, onNextFrame });
 
 	const isRunning = timerState === TimerState.RUNNING;
 
@@ -25,7 +27,7 @@ export const Timer = ({ trainingTimer }: TimerProps) => {
 			<PulsingRing colorClassName={bgColorClassName} isRunning={isRunning} />
 			<CircularProgress progress={frame.progress} colorClassName={bgColorClassName} />
 			<TimeCounter textColorClassName={textColorClassName} frame={frame} />
-			<PauseOverlay phase={timerState} toggleTimer={toggleTimer} />
+			{/*<PauseOverlay phase={timerState} toggleTimer={toggleTimer} />*/}
 		</Div>
 	);
 };

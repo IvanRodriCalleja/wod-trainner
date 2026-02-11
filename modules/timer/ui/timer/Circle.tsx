@@ -33,8 +33,8 @@ type CircularProgressProps = {
 };
 
 export const CircularProgress = ({ progress, colorClassName }: CircularProgressProps) => {
+	const ringWidth = 18;
 	const strokeWidth = 12;
-	const grooveWidth = 4;
 	const [size, setSize] = useState(0);
 
 	// Padding to prevent glow from being cut off
@@ -72,175 +72,113 @@ export const CircularProgress = ({ progress, colorClassName }: CircularProgressP
 						width: canvasSize,
 						height: canvasSize
 					}}>
-					{/* Elevation shadow — whole ring floats above surface */}
+					{/* Elevation shadow — subtle, not too offset */}
+					{/* Soft wide ambient shadow */}
 					<Circle
-						cx={center + 2}
-						cy={center + 3}
+						cx={center + 3}
+						cy={center + 5}
 						r={radius}
 						style="stroke"
-						strokeWidth={strokeWidth + grooveWidth * 2 + 6}
-						color="rgba(0,0,0,0.25)">
-						<BlurMask blur={12} style="normal" />
+						strokeWidth={ringWidth + 16}
+						color="rgba(0,0,0,0.1)">
+						<BlurMask blur={20} style="normal" />
 					</Circle>
 
-					{/* === LEVEL 1: Outer groove (recessed channel) === */}
+					{/* Tighter contact shadow */}
+					<Circle
+						cx={center + 1}
+						cy={center + 2}
+						r={radius}
+						style="stroke"
+						strokeWidth={ringWidth + 4}
+						color="rgba(0,0,0,0.2)">
+						<BlurMask blur={6} style="normal" />
+					</Circle>
+
+					{/*
+						Smooth torus ring — 9 thin concentric circles
+						simulating a rounded cross-section.
+						Brightness follows sin curve: dark edges → bright center.
+						Each has a sweep gradient for directional light.
+					*/}
+
+					{/* Slice 1 — outer edge (darkest) */}
+					<Circle cx={center} cy={center} r={radius + ringWidth / 2 - 1} style="stroke" strokeWidth={3} color="rgba(160,160,160,1)">
+						<SweepGradient c={{ x: center, y: center }} colors={['rgba(190,190,190,1)', 'rgba(170,170,170,1)', 'rgba(140,140,140,1)', 'rgba(125,125,125,1)', 'rgba(140,140,140,1)', 'rgba(170,170,170,1)', 'rgba(190,190,190,1)']} positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]} />
+					</Circle>
+
+					{/* Slice 2 */}
+					<Circle cx={center} cy={center} r={radius + ringWidth / 2 - 3} style="stroke" strokeWidth={3} color="rgba(175,175,175,1)">
+						<SweepGradient c={{ x: center, y: center }} colors={['rgba(210,210,210,1)', 'rgba(190,190,190,1)', 'rgba(160,160,160,1)', 'rgba(140,140,140,1)', 'rgba(160,160,160,1)', 'rgba(190,190,190,1)', 'rgba(210,210,210,1)']} positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]} />
+					</Circle>
+
+					{/* Slice 3 */}
+					<Circle cx={center} cy={center} r={radius + ringWidth / 2 - 5} style="stroke" strokeWidth={3} color="rgba(190,190,190,1)">
+						<SweepGradient c={{ x: center, y: center }} colors={['rgba(225,225,225,1)', 'rgba(210,210,210,1)', 'rgba(180,180,180,1)', 'rgba(155,155,155,1)', 'rgba(180,180,180,1)', 'rgba(210,210,210,1)', 'rgba(225,225,225,1)']} positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]} />
+					</Circle>
+
+					{/* Slice 4 — approaching peak */}
+					<Circle cx={center} cy={center} r={radius + ringWidth / 2 - 7} style="stroke" strokeWidth={3} color="rgba(200,200,200,1)">
+						<SweepGradient c={{ x: center, y: center }} colors={['rgba(238,238,238,1)', 'rgba(222,222,222,1)', 'rgba(192,192,192,1)', 'rgba(165,165,165,1)', 'rgba(192,192,192,1)', 'rgba(222,222,222,1)', 'rgba(238,238,238,1)']} positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]} />
+					</Circle>
+
+					{/* Slice 5 — peak (brightest) */}
+					<Circle cx={center} cy={center} r={radius + ringWidth / 2 - 9} style="stroke" strokeWidth={3} color="rgba(205,205,205,1)">
+						<SweepGradient c={{ x: center, y: center }} colors={['rgba(245,245,245,1)', 'rgba(230,230,230,1)', 'rgba(198,198,198,1)', 'rgba(170,170,170,1)', 'rgba(198,198,198,1)', 'rgba(230,230,230,1)', 'rgba(245,245,245,1)']} positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]} />
+					</Circle>
+
+					{/* Slice 6 — past peak */}
+					<Circle cx={center} cy={center} r={radius + ringWidth / 2 - 11} style="stroke" strokeWidth={3} color="rgba(200,200,200,1)">
+						<SweepGradient c={{ x: center, y: center }} colors={['rgba(238,238,238,1)', 'rgba(222,222,222,1)', 'rgba(192,192,192,1)', 'rgba(165,165,165,1)', 'rgba(192,192,192,1)', 'rgba(222,222,222,1)', 'rgba(238,238,238,1)']} positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]} />
+					</Circle>
+
+					{/* Slice 7 */}
+					<Circle cx={center} cy={center} r={radius + ringWidth / 2 - 13} style="stroke" strokeWidth={3} color="rgba(190,190,190,1)">
+						<SweepGradient c={{ x: center, y: center }} colors={['rgba(225,225,225,1)', 'rgba(210,210,210,1)', 'rgba(180,180,180,1)', 'rgba(155,155,155,1)', 'rgba(180,180,180,1)', 'rgba(210,210,210,1)', 'rgba(225,225,225,1)']} positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]} />
+					</Circle>
+
+					{/* Slice 8 */}
+					<Circle cx={center} cy={center} r={radius + ringWidth / 2 - 15} style="stroke" strokeWidth={3} color="rgba(175,175,175,1)">
+						<SweepGradient c={{ x: center, y: center }} colors={['rgba(210,210,210,1)', 'rgba(190,190,190,1)', 'rgba(160,160,160,1)', 'rgba(140,140,140,1)', 'rgba(160,160,160,1)', 'rgba(190,190,190,1)', 'rgba(210,210,210,1)']} positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]} />
+					</Circle>
+
+					{/* Slice 9 — inner edge (darkest) */}
+					<Circle cx={center} cy={center} r={radius + ringWidth / 2 - 17} style="stroke" strokeWidth={3} color="rgba(160,160,160,1)">
+						<SweepGradient c={{ x: center, y: center }} colors={['rgba(190,190,190,1)', 'rgba(170,170,170,1)', 'rgba(140,140,140,1)', 'rgba(125,125,125,1)', 'rgba(140,140,140,1)', 'rgba(170,170,170,1)', 'rgba(190,190,190,1)']} positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]} />
+					</Circle>
+
+					{/* Specular highlight — directional gloss along the peak */}
 					<Circle
 						cx={center}
 						cy={center}
-						r={radius + strokeWidth / 2 + grooveWidth / 2}
+						r={radius + ringWidth / 2 - 9}
 						style="stroke"
-						strokeWidth={grooveWidth}
-						color="rgba(170,170,170,1)">
+						strokeWidth={2.5}>
 						<SweepGradient
 							c={{ x: center, y: center }}
 							colors={[
-								'rgba(140,140,140,1)',
-								'rgba(155,155,155,1)',
-								'rgba(185,185,185,1)',
-								'rgba(195,195,195,1)',
-								'rgba(185,185,185,1)',
-								'rgba(155,155,155,1)',
-								'rgba(140,140,140,1)'
+								'rgba(255,255,255,0.5)',
+								'rgba(255,255,255,0.3)',
+								'rgba(255,255,255,0.05)',
+								'rgba(255,255,255,0.0)',
+								'rgba(255,255,255,0.05)',
+								'rgba(255,255,255,0.3)',
+								'rgba(255,255,255,0.5)'
 							]}
-							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
+							positions={[0, 0.15, 0.3, 0.5, 0.7, 0.85, 1]}
 						/>
-					</Circle>
-
-					{/* Shadow between outer groove and bevel */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius + strokeWidth / 2 + 0.5}
-						style="stroke"
-						strokeWidth={1.5}
-						color="rgba(0,0,0,0.3)">
 						<BlurMask blur={1.5} style="normal" />
 					</Circle>
 
-					{/* === LEVEL 2: Outer bevel (rising edge) === */}
+					{/* Inner vignette — shadow cast inside the ring */}
 					<Circle
 						cx={center}
 						cy={center}
-						r={radius + strokeWidth / 2 + 0.5}
+						r={radius + ringWidth / 2 - 19}
 						style="stroke"
-						strokeWidth={1}>
-						<SweepGradient
-							c={{ x: center, y: center }}
-							colors={[
-								'rgba(230,230,230,1)',
-								'rgba(210,210,210,1)',
-								'rgba(165,165,165,1)',
-								'rgba(140,140,140,1)',
-								'rgba(165,165,165,1)',
-								'rgba(210,210,210,1)',
-								'rgba(230,230,230,1)'
-							]}
-							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
-						/>
-					</Circle>
-
-					{/* Shadow between outer bevel and main ring */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius + strokeWidth / 2}
-						style="stroke"
-						strokeWidth={1}
-						color="rgba(0,0,0,0.25)">
-						<BlurMask blur={1} style="normal" />
-					</Circle>
-
-					{/* === LEVEL 3: Main raised ring (the track) === */}
-					{/* Convex surface: bright top-left, dark bottom-right */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius}
-						style="stroke"
-						strokeWidth={strokeWidth}
-						color="rgba(180,180,180,1)">
-						<SweepGradient
-							c={{ x: center, y: center }}
-							colors={[
-								'rgba(220,220,220,1)',
-								'rgba(200,200,200,1)',
-								'rgba(170,170,170,1)',
-								'rgba(140,140,140,1)',
-								'rgba(170,170,170,1)',
-								'rgba(200,200,200,1)',
-								'rgba(220,220,220,1)'
-							]}
-							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
-						/>
-					</Circle>
-
-					{/* Shadow between main ring and inner bevel */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius - strokeWidth / 2}
-						style="stroke"
-						strokeWidth={1}
-						color="rgba(0,0,0,0.25)">
-						<BlurMask blur={1} style="normal" />
-					</Circle>
-
-					{/* === LEVEL 4: Inner bevel (dropping edge) === */}
-					{/* Bright top-left, dark bottom-right */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius - strokeWidth / 2 - 1}
-						style="stroke"
-						strokeWidth={2}>
-						<SweepGradient
-							c={{ x: center, y: center }}
-							colors={[
-								'rgba(240,240,240,1)',
-								'rgba(220,220,220,1)',
-								'rgba(160,160,160,1)',
-								'rgba(120,120,120,1)',
-								'rgba(160,160,160,1)',
-								'rgba(220,220,220,1)',
-								'rgba(240,240,240,1)'
-							]}
-							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
-						/>
-					</Circle>
-
-					{/* Shadow between inner bevel and inner groove */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius - strokeWidth / 2 - 2}
-						style="stroke"
-						strokeWidth={1.5}
-						color="rgba(0,0,0,0.3)">
-						<BlurMask blur={1.5} style="normal" />
-					</Circle>
-
-					{/* === LEVEL 5: Inner groove (recessed channel) === */}
-					{/* Concave surface: dark top-left, light bottom-right */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius - strokeWidth / 2 - grooveWidth / 2 - 2}
-						style="stroke"
-						strokeWidth={grooveWidth}
-						color="rgba(160,160,160,1)">
-						<SweepGradient
-							c={{ x: center, y: center }}
-							colors={[
-								'rgba(100,100,100,1)',
-								'rgba(130,130,130,1)',
-								'rgba(180,180,180,1)',
-								'rgba(200,200,200,1)',
-								'rgba(180,180,180,1)',
-								'rgba(130,130,130,1)',
-								'rgba(100,100,100,1)'
-							]}
-							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
-						/>
+						strokeWidth={6}
+						color="rgba(0,0,0,0.08)">
+						<BlurMask blur={8} style="normal" />
 					</Circle>
 
 					{/* Progress arc */}

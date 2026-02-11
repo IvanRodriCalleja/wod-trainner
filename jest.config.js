@@ -8,7 +8,7 @@ export default {
 		'^modules/(.*)$': '<rootDir>/modules/$1'
 	},
 	moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-	testMatch: ['**/*.test.ts', '**/*.test.tsx'],
+	testMatch: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx'],
 	collectCoverageFrom: ['modules/**/*.{ts,tsx}', '!**/*.d.ts'],
 	testEnvironment: 'node'
 };

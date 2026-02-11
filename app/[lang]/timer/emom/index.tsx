@@ -7,6 +7,7 @@ import { createForm } from '@wod-trainer/design-system/ui/form';
 import { ScreenScrollView } from '@wod-trainer/design-system/ui/scroll-view';
 import { AppText } from '@wod-trainer/design-system/ui/text';
 
+import { EMOM } from 'modules/emom/domain/emom';
 import { useEmom } from 'modules/emom/infra/emomRepository';
 
 const times: Option[] = [
@@ -35,18 +36,13 @@ const rounds: Option[] = [
 	{ value: 10, label: '10 rounds' }
 ];
 
-type EmomFormData = {
-	time: number;
-	rounds: number;
-};
-
-const { Form, FieldSelect, SubmitButton } = createForm<EmomFormData>();
+const { Form, FieldSelect, SubmitButton } = createForm<EMOM>();
 
 const EmomPage = () => {
-	const { saveEmom } = useEmom();
+	const { emom, saveEmom } = useEmom();
 	const { lang } = useLocalSearchParams<{ lang: string }>();
 
-	const handleSubmit = (data: EmomFormData) => {
+	const handleSubmit = (data: EMOM) => {
 		saveEmom({ time: data.time, rounds: data.rounds });
 		router.push(`/${lang}/timer/emom/training`);
 	};
@@ -59,7 +55,7 @@ const EmomPage = () => {
 				</View>
 
 				<View className="flex-1">
-					<Form onSubmit={handleSubmit}>
+					<Form onSubmit={handleSubmit} defaultValues={emom}>
 						<View className="flex-1 gap-4">
 							<FieldSelect
 								name="time"

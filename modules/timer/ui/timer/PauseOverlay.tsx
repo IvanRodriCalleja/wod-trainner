@@ -127,13 +127,11 @@ export const PauseOverlay = ({ phase, toggleTimer }: PauseOverlayProps) => {
 						className={`relative aspect-square w-[120] overflow-hidden rounded-full border-2 border-emerald-600`}>
 						<Div className="absolute inset-0 bg-emerald-500/40" />
 						<Animated.View style={[styles.ripple, rippleStyle]} />
-						{/* in terms of positioning and zIndex-ing everything before the BlurView will be blurred */}
-						<Blur
-							className="flex h-full w-full items-center justify-center"
-							blurType="light"
-							blurAmount={16}>
-							<PlayIcon name="play" size={92} colorClassName="bg-emerald-400" className="ml-2.5" />
-						</Blur>
+						{/* BlurView as background layer - it doesn't support flex layout properly */}
+						<Blur className="absolute inset-0" blurType="light" blurAmount={16} />
+						<Div className="flex h-full w-full items-center justify-center">
+							<PlayIcon name="play" size={52} colorClassName="bg-emerald-400" className="ml-1" />
+						</Div>
 					</Div>
 				</Animated.View>
 			</Pressable>
