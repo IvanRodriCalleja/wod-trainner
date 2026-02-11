@@ -13,6 +13,8 @@ import {
 import { Easing, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
 import { withUniwind } from 'uniwind';
 
+import { useAppTheme } from '@wod-trainer/design-system/providers';
+
 const FilledCircle = withUniwind(Path, {
 	color: {
 		fromClassName: 'colorClassName',
@@ -25,7 +27,114 @@ type CircularProgressProps = {
 	colorClassName: string;
 };
 
+// Generate 7-stop symmetric gray gradient for torus cross-section
+const sliceGradient = (min: number, max: number): string[] => {
+	const d = max - min;
+	const v = (n: number) => {
+		const c = Math.round(n);
+		return `rgba(${c},${c},${c},1)`;
+	};
+	return [
+		v(max),
+		v(max - d * 0.25),
+		v(max - d * 0.7),
+		v(min),
+		v(max - d * 0.7),
+		v(max - d * 0.25),
+		v(max)
+	];
+};
+
+const gray = (n: number) => `rgba(${n},${n},${n},1)`;
+
+const GRADIENT_POSITIONS = [0, 0.15, 0.35, 0.5, 0.65, 0.85, 1];
+const SPECULAR_POSITIONS = [0, 0.15, 0.3, 0.5, 0.7, 0.85, 1];
+
+// Torus slices: [baseColor, gradientMin, gradientMax] — symmetric sin curve
+const lightTheme = {
+	ambientShadow: 'rgba(0,0,0,0.1)',
+	contactShadow: 'rgba(0,0,0,0.2)',
+	slices: [
+		[160, 125, 190],
+		[175, 140, 210],
+		[190, 155, 225],
+		[200, 165, 238],
+		[205, 170, 245],
+		[200, 165, 238],
+		[190, 155, 225],
+		[175, 140, 210],
+		[160, 125, 190]
+	] as [number, number, number][],
+	specular: [
+		'rgba(255,255,255,0.5)',
+		'rgba(255,255,255,0.3)',
+		'rgba(255,255,255,0.05)',
+		'rgba(255,255,255,0.0)',
+		'rgba(255,255,255,0.05)',
+		'rgba(255,255,255,0.3)',
+		'rgba(255,255,255,0.5)'
+	],
+	surfaceDarkening: 'rgba(0,0,0,0.03)',
+	innerAmbient: 'rgba(0,0,0,0.12)',
+	innerShadow: 'rgba(0,0,0,0.32)',
+	innerContact: 'rgba(0,0,0,0.25)',
+	innerHighlight: 'rgba(255,255,255,0.95)',
+	innerShine: [
+		'rgba(255,255,255,0.5)',
+		'rgba(255,255,255,0.3)',
+		'rgba(255,255,255,0.05)',
+		'rgba(255,255,255,0.0)',
+		'rgba(255,255,255,0.05)',
+		'rgba(255,255,255,0.3)',
+		'rgba(255,255,255,0.5)'
+	],
+	edgeColor: 'rgba(170,170,170,0.4)'
+};
+
+const darkTheme = {
+	ambientShadow: 'rgba(0,0,0,0.4)',
+	contactShadow: 'rgba(0,0,0,0.5)',
+	slices: [
+		[70, 48, 95],
+		[80, 55, 108],
+		[90, 62, 120],
+		[98, 68, 130],
+		[102, 72, 138],
+		[98, 68, 130],
+		[90, 62, 120],
+		[80, 55, 108],
+		[70, 48, 95]
+	] as [number, number, number][],
+	specular: [
+		'rgba(255,255,255,0.35)',
+		'rgba(255,255,255,0.2)',
+		'rgba(255,255,255,0.04)',
+		'rgba(255,255,255,0.0)',
+		'rgba(255,255,255,0.04)',
+		'rgba(255,255,255,0.2)',
+		'rgba(255,255,255,0.35)'
+	],
+	surfaceDarkening: 'rgba(0,0,0,0.02)',
+	innerAmbient: 'rgba(0,0,0,0.15)',
+	innerShadow: 'rgba(0,0,0,0.3)',
+	innerContact: 'rgba(0,0,0,0.2)',
+	innerHighlight: 'rgba(255,255,255,0.25)',
+	innerShine: [
+		'rgba(255,255,255,0.3)',
+		'rgba(255,255,255,0.18)',
+		'rgba(255,255,255,0.03)',
+		'rgba(255,255,255,0.0)',
+		'rgba(255,255,255,0.03)',
+		'rgba(255,255,255,0.18)',
+		'rgba(255,255,255,0.3)'
+	],
+	edgeColor: 'rgba(120,120,120,0.5)'
+};
+
 export const CircularProgress = ({ progress, colorClassName }: CircularProgressProps) => {
+	const { isDark } = useAppTheme();
+	const theme = isDark ? darkTheme : lightTheme;
+
 	const ringWidth = 18;
 	const strokeWidth = 12;
 	const [size, setSize] = useState(0);
@@ -69,242 +178,43 @@ export const CircularProgress = ({ progress, colorClassName }: CircularProgressP
 						width: canvasSize,
 						height: canvasSize
 					}}>
-					{/* Elevation shadow — subtle, not too offset */}
-					{/* Soft wide ambient shadow */}
+					{/* Elevation shadows */}
 					<Circle
 						cx={center + 3}
 						cy={center + 5}
 						r={radius}
 						style="stroke"
 						strokeWidth={ringWidth + 16}
-						color="rgba(0,0,0,0.1)">
+						color={theme.ambientShadow}>
 						<BlurMask blur={20} style="normal" />
 					</Circle>
-
-					{/* Tighter contact shadow */}
 					<Circle
 						cx={center + 1}
 						cy={center + 2}
 						r={radius}
 						style="stroke"
 						strokeWidth={ringWidth + 4}
-						color="rgba(0,0,0,0.2)">
+						color={theme.contactShadow}>
 						<BlurMask blur={6} style="normal" />
 					</Circle>
 
-					{/*
-						Smooth torus ring — 9 thin concentric circles
-						simulating a rounded cross-section.
-						Brightness follows sin curve: dark edges → bright center.
-						Each has a sweep gradient for directional light.
-					*/}
-
-					{/* Slice 1 — outer edge (darkest) */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius + ringWidth / 2 - 1}
-						style="stroke"
-						strokeWidth={3}
-						color="rgba(160,160,160,1)">
-						<SweepGradient
-							c={{ x: center, y: center }}
-							colors={[
-								'rgba(190,190,190,1)',
-								'rgba(170,170,170,1)',
-								'rgba(140,140,140,1)',
-								'rgba(125,125,125,1)',
-								'rgba(140,140,140,1)',
-								'rgba(170,170,170,1)',
-								'rgba(190,190,190,1)'
-							]}
-							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
-						/>
-					</Circle>
-
-					{/* Slice 2 */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius + ringWidth / 2 - 3}
-						style="stroke"
-						strokeWidth={3}
-						color="rgba(175,175,175,1)">
-						<SweepGradient
-							c={{ x: center, y: center }}
-							colors={[
-								'rgba(210,210,210,1)',
-								'rgba(190,190,190,1)',
-								'rgba(160,160,160,1)',
-								'rgba(140,140,140,1)',
-								'rgba(160,160,160,1)',
-								'rgba(190,190,190,1)',
-								'rgba(210,210,210,1)'
-							]}
-							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
-						/>
-					</Circle>
-
-					{/* Slice 3 */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius + ringWidth / 2 - 5}
-						style="stroke"
-						strokeWidth={3}
-						color="rgba(190,190,190,1)">
-						<SweepGradient
-							c={{ x: center, y: center }}
-							colors={[
-								'rgba(225,225,225,1)',
-								'rgba(210,210,210,1)',
-								'rgba(180,180,180,1)',
-								'rgba(155,155,155,1)',
-								'rgba(180,180,180,1)',
-								'rgba(210,210,210,1)',
-								'rgba(225,225,225,1)'
-							]}
-							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
-						/>
-					</Circle>
-
-					{/* Slice 4 — approaching peak */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius + ringWidth / 2 - 7}
-						style="stroke"
-						strokeWidth={3}
-						color="rgba(200,200,200,1)">
-						<SweepGradient
-							c={{ x: center, y: center }}
-							colors={[
-								'rgba(238,238,238,1)',
-								'rgba(222,222,222,1)',
-								'rgba(192,192,192,1)',
-								'rgba(165,165,165,1)',
-								'rgba(192,192,192,1)',
-								'rgba(222,222,222,1)',
-								'rgba(238,238,238,1)'
-							]}
-							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
-						/>
-					</Circle>
-
-					{/* Slice 5 — peak (brightest) */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius + ringWidth / 2 - 9}
-						style="stroke"
-						strokeWidth={3}
-						color="rgba(205,205,205,1)">
-						<SweepGradient
-							c={{ x: center, y: center }}
-							colors={[
-								'rgba(245,245,245,1)',
-								'rgba(230,230,230,1)',
-								'rgba(198,198,198,1)',
-								'rgba(170,170,170,1)',
-								'rgba(198,198,198,1)',
-								'rgba(230,230,230,1)',
-								'rgba(245,245,245,1)'
-							]}
-							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
-						/>
-					</Circle>
-
-					{/* Slice 6 — past peak */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius + ringWidth / 2 - 11}
-						style="stroke"
-						strokeWidth={3}
-						color="rgba(200,200,200,1)">
-						<SweepGradient
-							c={{ x: center, y: center }}
-							colors={[
-								'rgba(238,238,238,1)',
-								'rgba(222,222,222,1)',
-								'rgba(192,192,192,1)',
-								'rgba(165,165,165,1)',
-								'rgba(192,192,192,1)',
-								'rgba(222,222,222,1)',
-								'rgba(238,238,238,1)'
-							]}
-							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
-						/>
-					</Circle>
-
-					{/* Slice 7 */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius + ringWidth / 2 - 13}
-						style="stroke"
-						strokeWidth={3}
-						color="rgba(190,190,190,1)">
-						<SweepGradient
-							c={{ x: center, y: center }}
-							colors={[
-								'rgba(225,225,225,1)',
-								'rgba(210,210,210,1)',
-								'rgba(180,180,180,1)',
-								'rgba(155,155,155,1)',
-								'rgba(180,180,180,1)',
-								'rgba(210,210,210,1)',
-								'rgba(225,225,225,1)'
-							]}
-							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
-						/>
-					</Circle>
-
-					{/* Slice 8 */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius + ringWidth / 2 - 15}
-						style="stroke"
-						strokeWidth={3}
-						color="rgba(175,175,175,1)">
-						<SweepGradient
-							c={{ x: center, y: center }}
-							colors={[
-								'rgba(210,210,210,1)',
-								'rgba(190,190,190,1)',
-								'rgba(160,160,160,1)',
-								'rgba(140,140,140,1)',
-								'rgba(160,160,160,1)',
-								'rgba(190,190,190,1)',
-								'rgba(210,210,210,1)'
-							]}
-							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
-						/>
-					</Circle>
-
-					{/* Slice 9 — inner edge (darkest) */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius + ringWidth / 2 - 17}
-						style="stroke"
-						strokeWidth={3}
-						color="rgba(160,160,160,1)">
-						<SweepGradient
-							c={{ x: center, y: center }}
-							colors={[
-								'rgba(190,190,190,1)',
-								'rgba(170,170,170,1)',
-								'rgba(140,140,140,1)',
-								'rgba(125,125,125,1)',
-								'rgba(140,140,140,1)',
-								'rgba(170,170,170,1)',
-								'rgba(190,190,190,1)'
-							]}
-							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
-						/>
-					</Circle>
+					{/* Torus ring — 9 concentric slices with sweep gradients */}
+					{theme.slices.map(([base, min, max], i) => (
+						<Circle
+							key={i}
+							cx={center}
+							cy={center}
+							r={radius + ringWidth / 2 - (1 + i * 2)}
+							style="stroke"
+							strokeWidth={3}
+							color={gray(base)}>
+							<SweepGradient
+								c={{ x: center, y: center }}
+								colors={sliceGradient(min, max)}
+								positions={GRADIENT_POSITIONS}
+							/>
+						</Circle>
+					))}
 
 					{/* Specular highlight — directional gloss along the peak */}
 					<Circle
@@ -315,16 +225,8 @@ export const CircularProgress = ({ progress, colorClassName }: CircularProgressP
 						strokeWidth={2.5}>
 						<SweepGradient
 							c={{ x: center, y: center }}
-							colors={[
-								'rgba(255,255,255,0.5)',
-								'rgba(255,255,255,0.3)',
-								'rgba(255,255,255,0.05)',
-								'rgba(255,255,255,0.0)',
-								'rgba(255,255,255,0.05)',
-								'rgba(255,255,255,0.3)',
-								'rgba(255,255,255,0.5)'
-							]}
-							positions={[0, 0.15, 0.3, 0.5, 0.7, 0.85, 1]}
+							colors={theme.specular}
+							positions={SPECULAR_POSITIONS}
 						/>
 						<BlurMask blur={1.5} style="normal" />
 					</Circle>
@@ -336,76 +238,56 @@ export const CircularProgress = ({ progress, colorClassName }: CircularProgressP
 						r={radius - ringWidth / 2 - 5}
 						style="stroke"
 						strokeWidth={50}
-						color="rgba(0,0,0,0.03)">
+						color={theme.surfaceDarkening}>
 						<BlurMask blur={25} style="normal" />
 					</Circle>
 
-					{/* Clip shadows to only show OUTSIDE the inner circle */}
+					{/* Inner circle inset shadows — clipped to outside only */}
 					<Group clip={innerCircleClip} invertClip>
-						{/* Wide ambient shadow — right side (where light is blocked by rim) */}
 						<Circle
 							cx={center - 4}
 							cy={center + 1}
 							r={radius * 0.65 + 15}
 							style="stroke"
 							strokeWidth={40}
-							color="rgba(0,0,0,0.12)">
+							color={theme.innerAmbient}>
 							<BlurMask blur={22} style="normal" />
 						</Circle>
-
-						{/* Dark shadow on right inner edge (rim blocks light from right) */}
 						<Circle
 							cx={center - 7}
 							cy={center + 1}
 							r={radius * 0.65}
 							style="stroke"
 							strokeWidth={22}
-							color="rgba(0,0,0,0.32)">
+							color={theme.innerShadow}>
 							<BlurMask blur={14} style="normal" />
 						</Circle>
-
-						{/* Tight contact shadow on right edge */}
 						<Circle
 							cx={center - 4}
 							cy={center + 1}
 							r={radius * 0.65}
 							style="stroke"
 							strokeWidth={10}
-							color="rgba(0,0,0,0.25)">
+							color={theme.innerContact}>
 							<BlurMask blur={4} style="normal" />
 						</Circle>
-
-						{/* Light highlight on left inner edge (light reflects off far wall) */}
 						<Circle
 							cx={center + 6}
 							cy={center - 1}
 							r={radius * 0.65}
 							style="stroke"
 							strokeWidth={20}
-							color="rgba(255,255,255,0.95)">
+							color={theme.innerHighlight}>
 							<BlurMask blur={14} style="normal" />
 						</Circle>
 					</Group>
 
 					{/* Directional shine on inner circle edge */}
-					<Circle
-						cx={center}
-						cy={center}
-						r={radius * 0.65}
-						style="stroke"
-						strokeWidth={2.5}>
+					<Circle cx={center} cy={center} r={radius * 0.65} style="stroke" strokeWidth={2.5}>
 						<SweepGradient
 							c={{ x: center, y: center }}
-							colors={[
-								'rgba(255,255,255,0.5)',
-								'rgba(255,255,255,0.3)',
-								'rgba(255,255,255,0.05)',
-								'rgba(255,255,255,0.0)',
-								'rgba(255,255,255,0.05)',
-								'rgba(255,255,255,0.3)',
-								'rgba(255,255,255,0.5)'
-							]}
-							positions={[0, 0.15, 0.3, 0.5, 0.7, 0.85, 1]}
+							colors={theme.innerShine}
+							positions={SPECULAR_POSITIONS}
 						/>
 						<BlurMask blur={1.5} style="normal" />
 					</Circle>
@@ -417,7 +299,7 @@ export const CircularProgress = ({ progress, colorClassName }: CircularProgressP
 						r={radius * 0.65}
 						style="stroke"
 						strokeWidth={1.5}
-						color="rgba(170,170,170,0.4)"
+						color={theme.edgeColor}
 					/>
 
 					{/* Progress arc */}
