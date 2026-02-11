@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
-import { BlurMask, Canvas, Circle, Group, Path, Skia } from '@shopify/react-native-skia';
+import {
+	BlurMask,
+	Canvas,
+	Circle,
+	Group,
+	Path,
+	Skia,
+	SweepGradient
+} from '@shopify/react-native-skia';
 import { Easing, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
 import { withUniwind } from 'uniwind';
 
@@ -26,6 +34,7 @@ type CircularProgressProps = {
 
 export const CircularProgress = ({ progress, colorClassName }: CircularProgressProps) => {
 	const strokeWidth = 12;
+	const grooveWidth = 4;
 	const [size, setSize] = useState(0);
 
 	// Padding to prevent glow from being cut off
@@ -45,7 +54,7 @@ export const CircularProgress = ({ progress, colorClassName }: CircularProgressP
 
 	useEffect(() => {
 		progressValue.value = withTiming(progress, {
-			duration: 100,
+			duration: 1000,
 			easing: Easing.linear
 		});
 	}, [progress]);
@@ -63,15 +72,176 @@ export const CircularProgress = ({ progress, colorClassName }: CircularProgressP
 						width: canvasSize,
 						height: canvasSize
 					}}>
-					{/* Background circle */}
-					<UnfilledCircle
+					{/* Elevation shadow — whole ring floats above surface */}
+					<Circle
+						cx={center + 2}
+						cy={center + 3}
+						r={radius}
+						style="stroke"
+						strokeWidth={strokeWidth + grooveWidth * 2 + 6}
+						color="rgba(0,0,0,0.25)">
+						<BlurMask blur={12} style="normal" />
+					</Circle>
+
+					{/* === LEVEL 1: Outer groove (recessed channel) === */}
+					<Circle
+						cx={center}
+						cy={center}
+						r={radius + strokeWidth / 2 + grooveWidth / 2}
+						style="stroke"
+						strokeWidth={grooveWidth}
+						color="rgba(170,170,170,1)">
+						<SweepGradient
+							c={{ x: center, y: center }}
+							colors={[
+								'rgba(140,140,140,1)',
+								'rgba(155,155,155,1)',
+								'rgba(185,185,185,1)',
+								'rgba(195,195,195,1)',
+								'rgba(185,185,185,1)',
+								'rgba(155,155,155,1)',
+								'rgba(140,140,140,1)'
+							]}
+							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
+						/>
+					</Circle>
+
+					{/* Shadow between outer groove and bevel */}
+					<Circle
+						cx={center}
+						cy={center}
+						r={radius + strokeWidth / 2 + 0.5}
+						style="stroke"
+						strokeWidth={1.5}
+						color="rgba(0,0,0,0.3)">
+						<BlurMask blur={1.5} style="normal" />
+					</Circle>
+
+					{/* === LEVEL 2: Outer bevel (rising edge) === */}
+					<Circle
+						cx={center}
+						cy={center}
+						r={radius + strokeWidth / 2 + 0.5}
+						style="stroke"
+						strokeWidth={1}>
+						<SweepGradient
+							c={{ x: center, y: center }}
+							colors={[
+								'rgba(230,230,230,1)',
+								'rgba(210,210,210,1)',
+								'rgba(165,165,165,1)',
+								'rgba(140,140,140,1)',
+								'rgba(165,165,165,1)',
+								'rgba(210,210,210,1)',
+								'rgba(230,230,230,1)'
+							]}
+							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
+						/>
+					</Circle>
+
+					{/* Shadow between outer bevel and main ring */}
+					<Circle
+						cx={center}
+						cy={center}
+						r={radius + strokeWidth / 2}
+						style="stroke"
+						strokeWidth={1}
+						color="rgba(0,0,0,0.25)">
+						<BlurMask blur={1} style="normal" />
+					</Circle>
+
+					{/* === LEVEL 3: Main raised ring (the track) === */}
+					{/* Convex surface: bright top-left, dark bottom-right */}
+					<Circle
 						cx={center}
 						cy={center}
 						r={radius}
 						style="stroke"
 						strokeWidth={strokeWidth}
-						colorClassName="bg-neutral-500"
-					/>
+						color="rgba(180,180,180,1)">
+						<SweepGradient
+							c={{ x: center, y: center }}
+							colors={[
+								'rgba(220,220,220,1)',
+								'rgba(200,200,200,1)',
+								'rgba(170,170,170,1)',
+								'rgba(140,140,140,1)',
+								'rgba(170,170,170,1)',
+								'rgba(200,200,200,1)',
+								'rgba(220,220,220,1)'
+							]}
+							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
+						/>
+					</Circle>
+
+					{/* Shadow between main ring and inner bevel */}
+					<Circle
+						cx={center}
+						cy={center}
+						r={radius - strokeWidth / 2}
+						style="stroke"
+						strokeWidth={1}
+						color="rgba(0,0,0,0.25)">
+						<BlurMask blur={1} style="normal" />
+					</Circle>
+
+					{/* === LEVEL 4: Inner bevel (dropping edge) === */}
+					{/* Bright top-left, dark bottom-right */}
+					<Circle
+						cx={center}
+						cy={center}
+						r={radius - strokeWidth / 2 - 1}
+						style="stroke"
+						strokeWidth={2}>
+						<SweepGradient
+							c={{ x: center, y: center }}
+							colors={[
+								'rgba(240,240,240,1)',
+								'rgba(220,220,220,1)',
+								'rgba(160,160,160,1)',
+								'rgba(120,120,120,1)',
+								'rgba(160,160,160,1)',
+								'rgba(220,220,220,1)',
+								'rgba(240,240,240,1)'
+							]}
+							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
+						/>
+					</Circle>
+
+					{/* Shadow between inner bevel and inner groove */}
+					<Circle
+						cx={center}
+						cy={center}
+						r={radius - strokeWidth / 2 - 2}
+						style="stroke"
+						strokeWidth={1.5}
+						color="rgba(0,0,0,0.3)">
+						<BlurMask blur={1.5} style="normal" />
+					</Circle>
+
+					{/* === LEVEL 5: Inner groove (recessed channel) === */}
+					{/* Concave surface: dark top-left, light bottom-right */}
+					<Circle
+						cx={center}
+						cy={center}
+						r={radius - strokeWidth / 2 - grooveWidth / 2 - 2}
+						style="stroke"
+						strokeWidth={grooveWidth}
+						color="rgba(160,160,160,1)">
+						<SweepGradient
+							c={{ x: center, y: center }}
+							colors={[
+								'rgba(100,100,100,1)',
+								'rgba(130,130,130,1)',
+								'rgba(180,180,180,1)',
+								'rgba(200,200,200,1)',
+								'rgba(180,180,180,1)',
+								'rgba(130,130,130,1)',
+								'rgba(100,100,100,1)'
+							]}
+							positions={[0, 0.15, 0.35, 0.5, 0.65, 0.85, 1]}
+						/>
+					</Circle>
 
 					{/* Progress arc */}
 					<Group transform={[{ rotate: -Math.PI / 2 }]} origin={{ x: center, y: center }}>
